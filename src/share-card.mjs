@@ -16,25 +16,114 @@ export function shareSummary(profile={},address='',chainId=8453,now=Date.now()){
 function rect(c,x,y,w,h,r,fill){c.fillStyle=fill;c.beginPath();c.roundRect(x,y,w,h,r);c.fill();}
 function txt(c,s,x,y,size,color='#182b55',bold=true){c.fillStyle=color;c.font=(bold?'800 ':'500 ')+size+'px Manrope, Arial';c.fillText(String(s),x,y);}
 function makeCanvas(p){
-  const canvas=document.createElement('canvas');canvas.width=1200;canvas.height=675;
-  const c=canvas.getContext('2d'),bg=c.createLinearGradient(0,0,1100,675);
-  bg.addColorStop(0,'#ffffff');bg.addColorStop(.65,'#f1f5ff');bg.addColorStop(1,'#c5d8ff');
-  c.fillStyle=bg;c.fillRect(0,0,1200,675);
-  const halo=c.createRadialGradient(1020,160,10,1020,160,450);halo.addColorStop(0,'#b1c7ff');halo.addColorStop(1,'#edf3ff00');
-  c.fillStyle=halo;c.fillRect(600,0,600,600);
-  rect(c,34,33,1132,609,27,'#ffffffee');rect(c,68,65,73,73,19,'#1557fc');
-  c.fillStyle='#fff';c.fillRect(83,99,42,5);
-  txt(c,'BASE ACTIVITY HUB',161,104,29);txt(c,'PERSONAL ONCHAIN CARD',161,131,16,'#6380ad');
-  rect(c,915,77,203,44,24,'#e6efff');txt(c,p.network,934,106,17,'#235ad1');
-  txt(c,'MY BASE JOURNEY',78,204,17,'#295ff4');txt(c,p.address,76,266,40);
-  rect(c,887,196,236,133,22,'#2156e9');txt(c,'ACTIVITY SCORE',909,230,15,'#d7e1ff');
-  txt(c,p.score,908,296,68,'#fff');txt(c,'/ 100',1002,296,22,'#cbd9ff');
-  const tiles=[['TRANSACTIONS',p.transactions],['DAYS ON BASE',p.age],['ACTIVE DAYS · 30D',p.recent],['DESTINATIONS*',p.contracts]];
-  tiles.forEach((t,i)=>{const x=76+i*268;rect(c,x,366,252,138,18,'#eff5ff');txt(c,t[1],x+16,420,38,'#174bcb');txt(c,t[0],x+16,477,15,'#5e759d');});
-  c.fillStyle='#dce6fb';c.fillRect(76,539,1047,2);
-  txt(c,'Explore your onchain activity',76,582,21);
-  txt(c,'base-activity-hub.onrender.com',76,611,19,'#235ff0');
-  txt(c,p.partial?'Independent estimate · Some stats are incomplete':'Independent estimate · Not official Base ranking',650,610,14,'#7381a1',false);
+  const canvas=document.createElement('canvas');
+  canvas.width=1200;canvas.height=675;
+  const c=canvas.getContext('2d');
+  if(!c)throw Error('This browser cannot create a share image');
+  const W=1200,H=675,PI=Math.PI;
+  const fill=(style,x,y,w,h)=>{c.fillStyle=style;c.fillRect(x,y,w,h)};
+  const round=(x,y,w,h,r,color,stroke)=>{
+    c.beginPath();c.roundRect(x,y,w,h,r);c.fillStyle=color;c.fill();
+    if(stroke){c.strokeStyle=stroke;c.lineWidth=1.5;c.stroke()}
+  };
+  const text=(value,x,y,size,color='#ffffff',weight=700,maxWidth)=>{
+    c.font=weight+' '+size+'px Manrope, Inter, Arial, sans-serif';
+    c.fillStyle=color;c.textBaseline='alphabetic';
+    if(maxWidth)c.fillText(String(value),x,y,maxWidth);else c.fillText(String(value),x,y);
+  };
+  const linear=c.createLinearGradient(0,0,W,H);
+  linear.addColorStop(0,'#050b20');linear.addColorStop(.5,'#112650');linear.addColorStop(1,'#0b1744');
+  fill(linear,0,0,W,H);
+
+  // Glowing base-blue and cyan atmosphere, with fine schematic grid lines.
+  for(const [x,y,r,color] of [[1050,120,360,'83,126,255'],[800,560,400,'22,185,255'],[230,110,300,'38,92,242']]){
+    const glow=c.createRadialGradient(x,y,0,x,y,r);
+    glow.addColorStop(0,'rgba('+color+',0.29)');
+    glow.addColorStop(.55,'rgba('+color+',0.09)');
+    glow.addColorStop(1,'rgba('+color+',0)');
+    fill(glow,0,0,W,H);
+  }
+  c.save();c.strokeStyle='rgba(125,167,255,.085)';c.lineWidth=1;
+  for(let x=-250;x<1400;x+=56){c.beginPath();c.moveTo(x,0);c.lineTo(x+290,H);c.stroke()}
+  for(let y=0;y<H;y+=54){c.beginPath();c.moveTo(0,y);c.lineTo(W,y);c.stroke()}
+  c.restore();
+  // Outer luminous shell and glossy surface.
+  c.shadowColor='rgba(17,68,190,.52)';c.shadowBlur=42;
+  round(30,30,1140,615,34,'rgba(9,22,52,.84)','rgba(171,203,255,.30)');
+  c.shadowBlur=0;
+  const sheet=c.createLinearGradient(30,30,1160,650);
+  sheet.addColorStop(0,'rgba(49,93,193,.13)');
+  sheet.addColorStop(.4,'rgba(20,43,100,.03)');
+  sheet.addColorStop(1,'rgba(28,103,235,.19)');
+  round(34,34,1132,607,31,sheet);
+  // Electric top accent, intentionally distinctive from plain dashboard tiles.
+  const accent=c.createLinearGradient(60,0,1140,0);
+  accent.addColorStop(0,'#2c72ff');accent.addColorStop(.54,'#59d3ff');accent.addColorStop(1,'rgba(70,139,255,0)');
+  round(63,33,1074,4,2,accent);
+
+  // Header brand mark and small network pill.
+  round(66,65,52,52,16,'#2b69ff');
+  c.strokeStyle='#fff';c.lineWidth=6;c.lineCap='round';
+  c.beginPath();c.moveTo(82,91);c.lineTo(104,91);c.stroke();
+  c.beginPath();c.moveTo(89,80);c.lineTo(89,103);c.stroke();
+  text('BASE ACTIVITY HUB',136,95,24,'#f6f9ff',800);
+  text('ONCHAIN WALLET INSIGHTS',137,115,11,'#9fbdf1',600);
+  round(931,68,197,40,20,'rgba(49,91,174,.38)','rgba(110,160,255,.40)');
+  c.beginPath();c.arc(949,88,5,0,2*PI);c.fillStyle='#49dfae';c.fill();
+  text('BASE MAINNET',965,94,16,'#dfeaff',800);
+
+  // Editorial hierarchy.
+  text('YOUR BASE',70,192,57,'#fcfdff',850);
+  text('JOURNEY',70,254,66,'#8ec5ff',850);
+  text('Every transaction tells your story.',73,293,19,'#c0d4f1',500);
+  round(69,309,245,38,11,'rgba(54,97,177,.37)','rgba(101,150,245,.30)');
+  text(p.address,84,334,18,'#d6e9ff',750,220);
+
+  // Score halo with pronounced ring and legible large number.
+  const cx=987,cy=259,r=104;
+  const halo=c.createRadialGradient(cx,cy,40,cx,cy,168);
+  halo.addColorStop(0,'rgba(61,135,255,.25)');halo.addColorStop(1,'rgba(61,135,255,0)');
+  fill(halo,784,66,406,396);
+  c.strokeStyle='rgba(89,136,226,.30)';c.lineWidth=2;
+  c.beginPath();c.arc(cx,cy,124,0,2*PI);c.stroke();
+  c.beginPath();c.arc(cx,cy,147,-.4,1.3);c.stroke();
+  c.strokeStyle='#294576';c.lineWidth=15;c.lineCap='round';
+  c.beginPath();c.arc(cx,cy,r,-PI/2,1.5*PI);c.stroke();
+  const scoreNum=p.score==='—'?null:Number(p.score);
+  const pct=Number.isFinite(scoreNum)?Math.min(100,Math.max(0,scoreNum)):null;
+  if(pct!==null&&pct>0){
+    const ring=c.createLinearGradient(cx-100,cy-100,cx+100,cy+100);
+    ring.addColorStop(0,'#4f83ff');ring.addColorStop(.5,'#61d9ff');ring.addColorStop(1,'#9bafff');
+    c.strokeStyle=ring;c.lineWidth=16;c.shadowColor='#479cff';c.shadowBlur=18;
+    c.beginPath();c.arc(cx,cy,r,-PI/2,-PI/2+2*PI*pct/100);c.stroke();c.shadowBlur=0;
+  }
+  c.textAlign='center';text('ACTIVITY SCORE',cx,218,14,'#b6cfff',800);
+  text(p.score,cx,296,78,'#ffffff',850);
+  text('/ 100',cx,325,24,'#abc8f4',700);c.textAlign='start';
+
+  // Four high-contrast data panels across the full width.
+  const metrics=[
+    ['TRANSACTIONS',p.transactions,'#9cd0ff'],
+    ['DAYS ON BASE',p.age,'#c0b6ff'],
+    ['ACTIVE DAYS · 30D',p.recent,'#9df4de'],
+    ['DESTINATIONS*',p.contracts,'#ffd2a4']
+  ];
+  metrics.forEach(([label,value,tone],i)=>{
+    const x=68+i*268,y=386,w=252,h=154;
+    round(x,y,w,h,20,'rgba(28,48,95,.88)','rgba(118,168,255,.24)');
+    round(x+17,y+17,38,4,2,tone);
+    text(label,x+17,y+52,14,'#afc5e8',800,220);
+    const v=String(value);
+    text(v,x+17,y+111,v.length>=9?32:v.length>=7?37:47,'#f6faff',850,214);
+    text(i===0?'ONCHAIN TRANSACTIONS':i===1?'FIRST OBSERVED ACTIVITY':i===2?'LAST 30 DAYS':'UNIQUE DESTINATIONS',x+17,y+136,10,'#8ba6cd',650,220);
+  });
+  // Bottom edge CTA and clear attribution.
+  round(69,563,1049,1,1,'rgba(128,169,239,.22)');
+  round(69,584,31,31,9,'#3678ff');
+  text('↗',76,607,21,'#ffffff',800);
+  text('Check yours at',114,607,18,'#b8cbed',600);
+  text('base-activity-hub.onrender.com',255,607,19,'#72c9ff',800);
+  c.textAlign='right';text(p.partial?'INDEPENDENT · ESTIMATED':'INDEPENDENT · NOT OFFICIAL',1122,630,12,'#9db5da',700);c.textAlign='start';
   return canvas;
 }
 export function postText(s){
