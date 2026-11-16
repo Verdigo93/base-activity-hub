@@ -104,7 +104,7 @@ function openAction(id,opts={}){const a=getAction(id);const info=actionInfo(id,o
    fetch('/api/x402/status',{cache:'no-store',headers:{Accept:'application/json'}})
      .then(async response=>{
        const readiness=await response.json();
-       if(state.modal?.id!=='x402')return;
+       if(state.modal?.id!=='x402'||state.modal.info!==info)return;
        if(response.ok&&readiness.facilitatorSupported===true&&
           readiness.settlementEnabled===true&&readiness.network==='eip155:8453'){
          info.previewOnly=false;info.x402Ready=true;
@@ -120,7 +120,7 @@ function openAction(id,opts={}){const a=getAction(id);const info=actionInfo(id,o
        }
        $('confirmModal').disabled=false;
      }).catch(()=>{
-       if(state.modal?.id!=='x402')return;
+       if(state.modal?.id!=='x402'||state.modal.info!==info)return;
        $('confirmLabel').textContent='Check x402 API';
        $('confirmModal').disabled=false;
      });
