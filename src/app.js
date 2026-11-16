@@ -141,8 +141,13 @@ async function verifyPaidContract(spender,kind,artworkKind=0){
 }
 async function usdcApproval(spender,amount){
  const token=assertConfiguredContract('usdc');
- const [tokenCode,spenderCode]=await Promise.all([rpc('eth_getCode',[token,'latest']),rpc('eth_getCode',[spender,'latest'])]);
+ const [tokenCode,spenderCode,balanceRaw]=await Promise.all([
+  rpc('eth_getCode',[token,'latest']),
+  rpc('eth_getCode',[spender,'latest']),
+  rpc('eth_call',[{to:token,data:callData('balanceOf(address)',['address'],[state.account])},'latest'])
+ ]);
  if(!tokenCode||tokenCode==='0x'||!spenderCode||spenderCode==='0x')throw Error('USDC or contract is missing on Base Mainnet.');
+ if(BigInt(balanceRaw)<amount)throw Error(`Insufficient USDC on Base: your wallet has ${formatUnits(balanceRaw,6,2)} USDC, but this action requires ${formatUnits(amount,6,2)} USDC plus ETH for gas. No transaction sent.`);
  const allowed=await rpc('eth_call',[{to:token,data:callData('allowance(address,address)',['address','address'],[state.account,spender])},'latest']);
  if(BigInt(allowed)>=amount)return;
  const amountText=formatUnits(amount,6,2);
