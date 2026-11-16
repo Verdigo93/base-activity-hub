@@ -1,0 +1,10 @@
+{
+  "name": "Base Activity Originals",
+  "symbol": "BAO",
+  "description": "Three collectible rarity tiers from Base Activity Hub. Independently developed by Verdigo93 on Base Mainnet. Genesis (Common), Ember (Rare), Crown (Legendary). Not affiliated with Coinbase or Base.",
+  "image": "https://base-activity-hub.onrender.com/assets/crown.jpg",
+  "banner_image": "https://base-activity-hub.onrender.com/assets/genesis.jpg",
+  "featured_image": "https://base-activity-hub.onrender.com/assets/ember.jpg",
+  "external_link": "https://base-activity-hub.onrender.com/",
+  "seller_fee_basis_points": 0
+}
