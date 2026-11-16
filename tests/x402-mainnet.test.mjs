@@ -44,6 +44,7 @@ test('Mainnet challenge advertises exact 0.01 USDC and correct payout',()=>{
  assert.equal(challenge.accepts[0].amount,'10000');
  assert.equal(challenge.accepts[0].payTo,wallet);
  assert.equal(challenge.accepts[0].extra.assetTransferMethod,'eip3009');
+ assert.equal(challenge.accepts[0].extra.name,'USD Coin');
  assert.match(challenge.resource.url,/chainId=8453/);
 });
 
