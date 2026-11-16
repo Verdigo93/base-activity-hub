@@ -1,6 +1,7 @@
 import {CONFIG} from '../config.js';
 import {hydrateIcons, icon} from './icons.js';
 import {abiEncode,callData,formatUnits,parseUnits,isAddress,shortAddress,hex,errorMessage,builderCodeSuffix} from './eth.js';
+import {validateMainnetX402,createMainnetAuthorization,encodeMainnetPayment} from './x402-payment.mjs';
 
 const $=id=>document.getElementById(id);
 const txStorePrefix='bah:confirmed:';
@@ -96,6 +97,34 @@ function actionInfo(id,opts={}){const chain=config();switch(id){
  default:return {desc:'',fields:'',destination:'—',fee:'—'};
 }}
 function openAction(id,opts={}){const a=getAction(id);const info=actionInfo(id,opts);state.modal={id,opts,info};$('modalKicker').textContent='BASE MAINNET · TRANSACTION';$('modalTitle').textContent=state.language==='ua'?a.ua:a.title;$('modalDescription').textContent=info.desc;$('modalFields').innerHTML=info.fields;$('modalReview').innerHTML=reviewRow('Network',config().name)+reviewRow('Recipient / contract',info.destination)+(['mint','deploy','mintToken'].includes(id)?reviewRow(tr('Service fee receiver','Отримувач сервісної оплати'),CONFIG.treasuryReceiver):'')+reviewRow('Price & network cost',info.fee)+reviewRow('Confirmation',info.previewOnly?'Read-only check · no signature':info.unavailable?'Unavailable':'Required in your wallet');$('modalFeedback').className='modal-feedback hidden';$('modalFeedback').textContent='';$('confirmLabel').textContent=info.external?tr('Open Uniswap','Відкрити Uniswap'):info.previewOnly?'Check x402 API':info.unavailable?tr('Integration pending','Поки недоступно'):tr('Continue in wallet','Підтвердити у гаманці');$('confirmModal').disabled=Boolean(info.unavailable || (info.requires&&!isAddress(config()[info.requires])));if(info.requires&&!isAddress(config()[info.requires])){setFeedback('This feature is coming soon. Its Base Mainnet smart contract has not been deployed and verified yet. No payment is requested.');$('confirmLabel').textContent='Deployment pending';}if(info.requires&&!isAddress(config()[info.requires]))$('modalFeedback').insertAdjacentHTML('beforeend',' <a href="https://github.com/Verdigo93/base-activity-hub/blob/main/contracts/DEPLOY_MAINNET_UA.md" target="_blank" rel="noopener noreferrer">Mainnet deployment guide ↗</a>');if(info.unavailable)setFeedback('The x402 Mainnet integration is not live yet. No transaction or payment can be initiated.');$('modalBackdrop').classList.remove('hidden');document.body.style.overflow='hidden';$('closeModal').focus();
+ if(id==='x402'){
+   $('confirmModal').disabled=true;
+   $('confirmLabel').textContent='Checking x402 readiness...';
+   document.querySelector('.modal-warning').textContent='Read-only check. No signature or USDC will be requested.';
+   fetch('/api/x402/status',{cache:'no-store',headers:{Accept:'application/json'}})
+     .then(async response=>{
+       const readiness=await response.json();
+       if(state.modal?.id!=='x402')return;
+       if(response.ok&&readiness.facilitatorSupported===true&&
+          readiness.settlementEnabled===true&&readiness.network==='eip155:8453'){
+         info.previewOnly=false;info.x402Ready=true;
+         $('modalDescription').textContent='Buy one Base Mainnet wallet report for exactly 0.01 USDC. MetaMask will request an EIP-712 signature authorizing a one-time payment. PayAI will settle the transfer onchain. No gas is charged to your wallet for this x402 transfer.';
+         $('modalReview').innerHTML=reviewRow('Network',config().name)+
+           reviewRow('Payment recipient',CONFIG.treasuryReceiver)+
+           reviewRow('Exact payment','0.01 USDC · gas sponsored by facilitator')+
+           reviewRow('Confirmation','EIP-712 signature in your wallet');
+         document.querySelector('.modal-warning').textContent='Signing authorizes an actual payment of 0.01 USDC after PayAI settlement. Review the amount and recipient carefully. Never enter your seed phrase.';
+         $('confirmLabel').textContent='Pay 0.01 USDC';
+       }else{
+         $('confirmLabel').textContent='Check x402 API';
+       }
+       $('confirmModal').disabled=false;
+     }).catch(()=>{
+       if(state.modal?.id!=='x402')return;
+       $('confirmLabel').textContent='Check x402 API';
+       $('confirmModal').disabled=false;
+     });
+ }
  if(['mint','deploy','mintToken'].includes(id)&&isAddress(info.destination)&&state.account){
    const destination=info.destination;
    rpc('eth_call',[{to:destination,data:callData('treasury()')},'latest']).then(result=>{
@@ -158,15 +187,47 @@ async function executeAction(){if(state.busy||!state.modal)return;const {id,info
  if(id==='x402'){
    const response=await fetch('/api/x402/report?address='+encodeURIComponent(state.account)+'&chainId=8453',{cache:'no-store',headers:{Accept:'application/json'}});
    const body=await response.json();
-   const payment=body?.accepts?.[0];
-   if(response.status!==402||body.x402Version!==2||payment?.scheme!=='exact'||
-      payment.network!=='eip155:8453'||payment.amount!=='10000'||
-      String(payment.asset||'').toLowerCase()!==config().usdc.toLowerCase()||
-      String(payment.payTo||'').toLowerCase()!==CONFIG.treasuryReceiver.toLowerCase()||
-      payment.extra?.name!=='USD Coin')throw Error('Unexpected x402 payment details. No signature or payment was requested.');
-   setFeedback(/Settlement is not enabled yet/i.test(String(body.error||''))?
-     'x402 verified: Base Mainnet · 0.01 USDC · correct recipient. Settlement remains OFF. No signature or charge.' :
-     'x402 terms verified. This check-only screen cannot sign or send a payment. No signature or charge.');
+   if(response.status!==402)throw Error('Unexpected response from the x402 API. No payment signed.');
+   validateMainnetX402(body,state.account,window.location.origin,CONFIG.treasuryReceiver);
+   if(info.previewOnly){
+     setFeedback(/Settlement is not enabled yet/i.test(String(body.error||''))?
+       'x402 verified: Base Mainnet · 0.01 USDC · correct recipient. Settlement remains OFF. No signature or charge.' :
+       'x402 terms verified. This check-only screen cannot sign or send a payment. No signature or charge.');
+     return;
+   }
+   if(!info.x402Ready)throw Error('x402 payment is not enabled in this session.');
+   const statusResponse=await fetch('/api/x402/status',{cache:'no-store'});
+   const status=await statusResponse.json();
+   if(!statusResponse.ok||status.facilitatorSupported!==true||status.settlementEnabled!==true||
+      status.network!=='eip155:8453')throw Error('x402 settlement is not enabled. No payment signed.');
+   if(Number(BigInt(await rpc('eth_chainId',[])))!==8453)
+     throw Error('Switch MetaMask to Base Mainnet before paying.');
+   const account=state.account;
+   const balance=await rpc('eth_call',[{to:config().usdc,data:callData('balanceOf(address)',['address'],[account])},'latest']);
+   if(BigInt(balance)<10000n)throw Error('Insufficient native USDC: this payment requires 0.01 USDC on Base. No signature requested.');
+   const random=crypto.getRandomValues(new Uint8Array(32));
+   const prepared=createMainnetAuthorization(body,account,window.location.origin,CONFIG.treasuryReceiver,random);
+   setFeedback('Review the EIP-712 request in MetaMask: one-time payment of exactly 0.01 USDC to the displayed recipient. PayAI will submit it onchain after signing.');
+   const signature=await state.provider.request({method:'eth_signTypedData_v4',params:[account,JSON.stringify(prepared.typedData)]});
+   if(state.account?.toLowerCase()!==account.toLowerCase())throw Error('Wallet changed during signing. No payment sent.');
+   const signedPayload=encodeMainnetPayment(body,prepared.authorization,signature);
+   setFeedback('Signature received. Asking PayAI to verify and settle the 0.01 USDC payment. Do not repeat the payment if status is uncertain.');
+   const paidResponse=await fetch('/api/x402/report?address='+encodeURIComponent(account)+'&chainId=8453',{
+     method:'GET',cache:'no-store',
+     headers:{Accept:'application/json','PAYMENT-SIGNATURE':signedPayload}
+   });
+   const paid=await paidResponse.json();
+   if(!paidResponse.ok||paid.ok!==true||paid.paid!==true||
+      !/^0x[0-9a-f]{64}$/i.test(paid.transaction||'')){
+     throw Error(paid.error||'Payment status is not confirmed. Check your USDC transfers before trying again.');
+   }
+   setFeedback('Payment confirmed on Base Mainnet! Your wallet report is ready.','success',paid.transaction);
+   $('modalReview').insertAdjacentHTML('beforeend',
+     reviewRow('Receipt',paid.transaction)+
+     reviewRow('Wallet transactions',paid.report?.transactions??'Unavailable')+
+     reviewRow('Wallet age (days)',paid.report?.daysOnBase??'Unavailable')+
+     reviewRow('Recent active days',paid.report?.activeDays??'Unavailable'));
+   toast('x402 payment confirmed · 0.01 USDC','success');
    return;
   }
  await switchNetwork(state.chainId);const chain=config();let tx,label=getAction(id).title,type=id;
