@@ -13,8 +13,10 @@ test('English only, Base Mainnet only UI',()=>{
 });
 test('x402 Mainnet action cannot initiate a testnet payment',()=>{
  const app=read('src/app.js');
- assert.match(app,/x402 payments on Base Mainnet are not available yet/);
- assert.match(app,/unavailable:true/);
+ assert.match(app,/Check 0\.01 USDC payment readiness/);
+ assert.match(app,/previewOnly:true/);
+ assert.match(app,/No signature or charge/);
+ assert.doesNotMatch(app,/eth_signTypedData_v4/);
  assert.doesNotMatch(app,/switchNetwork\(84532\)/);
  const server=read('api/server.mjs'), mainnet=read('api/x402-mainnet.mjs');
  assert.match(server,/handleMainnetX402Challenge\(req,res,url,profile\)/);
