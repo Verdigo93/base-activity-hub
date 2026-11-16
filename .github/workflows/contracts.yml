@@ -1,9 +1,9 @@
 name: Contract compilation (testnet readiness)
 on:
   push:
-    paths: ['contracts/**', 'foundry.toml', '.github/workflows/contracts.yml']
+    paths: ['contracts/**', 'test/**', 'foundry.toml', '.github/workflows/contracts.yml']
   pull_request:
-    paths: ['contracts/**', 'foundry.toml']
+    paths: ['contracts/**', 'test/**', 'foundry.toml']
   workflow_dispatch:
 permissions:
   contents: read
