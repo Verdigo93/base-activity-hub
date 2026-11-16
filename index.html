@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#f6f8ff" />
+  <meta name="description" content="Build your Base onchain activity: GM, daily check-ins, NFT minting, contract deployment, transfers and wallet analytics in one place." />
+  <meta property="og:title" content="Base Activity Hub" />
+  <meta property="og:description" content="Everything you need to explore Base, in one bright dashboard." />
+  <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="/src/styles.css" />
+  <title>Base Activity Hub — Onchain actions, simplified</title>
+</head>
+<body>
+  <div id="app">
+    <header class="topbar">
+      <a class="brand" href="#home" aria-label="Base Activity Hub home"><span class="brand-mark"><span class="brand-stripe"></span></span><span><strong>Base Activity Hub</strong><small>Onchain actions · Activity · Analytics</small></span></a>
+      <nav class="topnav" aria-label="Primary navigation"><a href="#home" class="nav-link active" data-nav="home"><span data-icon="house"></span><span data-i18n="navHome">Home</span></a><a href="#analytics" class="nav-link" data-nav="analytics"><span data-icon="chart"></span><span data-i18n="navAnalytics">Analytics</span></a><a href="#achievements" class="nav-link" data-nav="achievements"><span data-icon="trophy"></span><span data-i18n="navAchievements">Achievements</span></a></nav>
+      <div class="topcontrols"><button id="languageButton" class="lang-button" aria-label="Switch language">UA</button><select id="networkSelect" class="network-select" aria-label="Base network"><option value="8453">● Base Mainnet</option><option value="84532">◉ Base Sepolia</option></select><button id="connectButton" class="wallet-button"><span data-icon="wallet"></span><span id="walletButtonLabel">Connect wallet</span></button></div>
+    </header>
+    <main class="page" id="home">
+      <section class="hero"><div class="hero-copy"><span class="eyebrow"><span class="pulse-dot"></span> Built for Base explorers</span><h1>Grow your <span>Base</span> activity</h1><p>Do onchain actions, mint NFTs, deploy contracts and track your activity in one beautiful place.</p><div class="hero-tags"><span><span data-icon="zap"></span> Real onchain</span><span><span data-icon="shield"></span> Transparent fees</span><span><span data-icon="layers"></span> All in one</span></div></div><div class="hero-image" role="img" aria-label="Blue futuristic Base illustration"></div><div class="hero-glow"></div></section>
+      <div id="modeNotice" class="mode-notice"><span data-icon="info"></span><span id="modeText">Preview mode — connect a wallet to see your live Base profile. Sample data is clearly marked.</span><button id="dismissNotice" aria-label="Dismiss">×</button></div>
+      <div class="dashboard-grid">
+        <aside class="profile-panel panel" id="analytics">
+          <div class="profile-head"><div class="avatar"><span>◕</span></div><div><h2 data-i18n="myProfile">My Base Profile</h2><div class="address-line"><span id="profileAddress">Preview profile</span><button id="copyAddress" class="icon-button" aria-label="Copy address"><span data-icon="copy"></span></button></div><span class="status-badge"><i></i><span id="profileStatus">Demo</span></span></div></div>
+          <div class="metrics">
+            <div class="metric"><span data-icon="arrows"></span><b id="statTx">248</b><span data-i18n="transactions">Transactions</span></div>
+            <div class="metric"><span data-icon="calendar"></span><b id="statDays">126</b><span data-i18n="daysOnBase">Days on Base</span></div>
+            <div class="metric"><span data-icon="flame"></span><b id="statActive">18</b><span data-i18n="activeDays">Active days</span></div>
+            <div class="metric"><span data-icon="code"></span><b id="statContracts">4</b><span data-i18n="deployedContracts">Deployed contracts</span></div>
+            <div class="metric"><span data-icon="image"></span><b id="statNft">32</b><span data-i18n="nftsMinted">NFT mints / transfers</span></div>
+            <div class="metric"><span data-icon="layers"></span><b id="statUnique">12</b><span data-i18n="uniqueContracts">Unique contracts</span></div>
+          </div>
+          <section class="balance-card"><h3 data-i18n="balances">Balances (Base)</h3><div class="balance-item"><div class="coin eth">◆</div><strong id="balanceEth">0.0423 ETH</strong><small id="balanceEthUSD">Demo</small></div><div class="balance-item"><div class="coin usdc">$</div><strong id="balanceUsdc">12.50 USDC</strong><small id="balanceUsdcUSD">Demo</small></div></section>
+          <section class="info-card"><div><span data-icon="calendar"></span><p><small data-i18n="firstTransaction">First transaction</small><strong id="firstTransaction">Apr 12, 2024</strong></p></div><hr/><div><span data-icon="fuel"></span><p><small data-i18n="totalGas">Total gas spent</small><strong id="totalGas">0.0187 ETH</strong></p></div></section>
+          <button id="refreshButton" class="subtle-button full"><span data-icon="refresh"></span><span data-i18n="refreshData">Refresh profile</span></button><p class="source-label" id="profileSource">Preview statistics · not live</p>
+        </aside>
+        <section class="center-stack">
+          <section class="panel actions-panel" id="actions"><div class="section-title"><span class="title-icon"><span data-icon="zap"></span></span><div><h2 data-i18n="onchainActions">Onchain Actions</h2><p data-i18n="actionsSubtitle">Real interactions with Base, without the complexity.</p></div></div><div id="actionsGrid" class="actions-grid"></div></section>
+          <div class="feature-grid">
+            <section class="panel nft-panel" id="nft"><div class="section-title compact"><span class="title-icon"><span data-icon="image"></span></span><div><h2 data-i18n="nftCollection">Mint NFT Collection</h2><p data-i18n="nftSubtitle">Collect original Base-inspired artwork.</p></div><span class="price-tag">$0.10 USDC</span></div><div class="nft-gallery" id="nftGallery"></div><div class="gallery-dots"><i class="selected"></i><i></i><i></i></div></section>
+            <section class="panel deploy-panel" id="factory"><div class="section-title compact"><span class="title-icon"><span data-icon="code"></span></span><div><h2 data-i18n="contractFactory">Smart Contract Factory</h2><p data-i18n="factorySubtitle">Your own contract, in a few clicks.</p></div></div><label class="input-label" for="factoryType" data-i18n="contractType">Contract type</label><select class="field" id="factoryType"><option value="counter">Counter</option><option value="guestbook">Guestbook</option><option value="storage">Simple Storage</option><option value="token">ERC-20 Token</option><option value="nftCollection">NFT Collection</option></select><div class="factory-benefits"><span><span data-icon="check"></span> Open-source templates</span><span><span data-icon="check"></span> User-owned contracts</span><span><span data-icon="check"></span> Onchain deployment proof</span></div><div class="price-note">Service fee: <strong>$0.10 USDC</strong> + gas</div><button class="primary-button full" id="deployButton"><span data-icon="rocket"></span><span data-i18n="deployContract">Deploy Contract</span></button></section>
+          </div>
+        </section>
+        <aside class="right-stack">
+          <section class="panel daily-panel"><div class="section-title compact"><span class="title-icon"><span data-icon="calendar"></span></span><div><h2 data-i18n="dailyActivity">Daily Activity</h2><p data-i18n="dailySubtitle">Your 5 onchain actions for today.</p></div><span class="counter-pill" id="dailyCounter">0 / 5</span></div><div id="dailyTasks" class="daily-list"></div><button class="primary-button daily-cta full" id="dailyButton"><span data-icon="rocket"></span><span>Start Daily Activity</span><small>One confirmation per action · gas varies</small></button><p class="mini-disclaimer">Progress recorded after confirmed transactions on this device.</p></section>
+          <section class="panel achievements-panel" id="achievements"><div class="section-title compact"><span class="title-icon"><span data-icon="trophy"></span></span><div><h2 data-i18n="achievements">Achievements</h2></div><span class="counter-pill" id="achievementCount">0 / 8</span></div><div class="achievements" id="achievementsList"></div><p class="achieve-caption">Community badges, not official Base rewards.</p></section>
+          <section class="panel safety-panel"><div class="safety-icon"><span data-icon="shield"></span></div><div><strong>You're always in control</strong><p>Every transaction is reviewed in your wallet. No seed phrases. No hidden transfers.</p></div></section>
+        </aside>
+      </div>
+      <div class="bottom-grid">
+        <section class="panel recent-panel"><div class="section-title small"><span class="title-icon"><span data-icon="clock"></span></span><div><h2 data-i18n="recentActivity">Recent Activity</h2></div><a id="scanLink" target="_blank" rel="noopener noreferrer" href="https://basescan.org/">View on BaseScan ↗</a></div><div id="recentList" class="recent-list"></div></section>
+        <section class="panel calendar-panel"><div class="section-title small"><span class="title-icon"><span data-icon="calendar"></span></span><div><h2 data-i18n="activityCalendar">Activity Calendar</h2></div><span class="small-badge">Last 30 days</span></div><div class="calendar-content"><div id="calendarHeatmap" class="heatmap"></div><div class="calendar-stats"><div><span data-icon="flame"></span><strong id="calendarActive">18</strong><small>Active days*</small></div><div><span data-icon="arrows"></span><strong id="calendarTx">62</strong><small>Transactions*</small></div></div></div><small class="calendar-note">*Selected period, based on available data.</small></section>
+      </div>
+      <footer><span>Base Activity Hub · Independent community tool, not affiliated with Coinbase or Base.</span><span>Onchain activity does not guarantee airdrops or rewards. <a href="https://docs.base.org" target="_blank" rel="noopener noreferrer">Base Docs ↗</a></span></footer>
+    </main>
+  </div>
+  <div class="modal-backdrop hidden" id="modalBackdrop"><section class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle"><div class="modal-header"><div><small id="modalKicker">BASE TRANSACTION</small><h2 id="modalTitle">Action details</h2></div><button id="closeModal" class="close-button" aria-label="Close">×</button></div><p id="modalDescription" class="modal-description"></p><div id="modalFields" class="modal-fields"></div><div class="modal-review" id="modalReview"></div><p class="modal-warning">Your wallet will show the final transaction and network fee. Nothing is sent without your approval.</p><div class="modal-buttons"><button id="cancelModal" class="subtle-button">Cancel</button><button id="confirmModal" class="primary-button"><span data-icon="wallet"></span><span id="confirmLabel">Continue in wallet</span></button></div><div id="modalFeedback" class="modal-feedback hidden"></div></section></div>
+  <div class="toast-container" id="toastContainer" aria-live="polite"></div>
+  <script type="module" src="/src/app.js"></script>
+</body>
+</html>

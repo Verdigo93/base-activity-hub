@@ -1,0 +1,22 @@
+{
+  "accountAssociation": {
+    "header": "SIGN_WITH_OWNER_WALLET",
+    "payload": "SIGN_WITH_OWNER_WALLET",
+    "signature": "SIGN_WITH_OWNER_WALLET"
+  },
+  "baseBuilder": {
+    "ownerAddress": "0x_REPLACE_WITH_YOUR_PUBLIC_OWNER_ADDRESS"
+  },
+  "miniapp": {
+    "version": "1",
+    "name": "Base Activity Hub",
+    "homeUrl": "https://REPLACE-WITH-YOUR-DOMAIN/",
+    "iconUrl": "https://REPLACE-WITH-YOUR-DOMAIN/assets/icon.png",
+    "subtitle": "Explore Base onchain",
+    "description": "GM, mint NFTs, deploy smart contracts and track your onchain activity in one place.",
+    "splashImageUrl": "https://REPLACE-WITH-YOUR-DOMAIN/assets/splash.png",
+    "splashBackgroundColor": "#F5F7FF",
+    "primaryCategory": "utility",
+    "tags": ["base", "onchain", "nft", "analytics"]
+  }
+}

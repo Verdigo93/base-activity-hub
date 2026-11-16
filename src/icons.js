@@ -1,0 +1,33 @@
+const shapes = {
+  house:'<path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/>',
+  chart:'<rect x="3" y="13" width="4" height="8" rx="1"/><rect x="10" y="8" width="4" height="13" rx="1"/><rect x="17" y="3" width="4" height="18" rx="1"/>',
+  trophy:'<path d="M8 3h8v8a4 4 0 0 1-8 0V3ZM8 6H4v2a4 4 0 0 0 4 4M16 6h4v2a4 4 0 0 1-4 4M12 15v4M8 21h8M10 19h4"/>',
+  wallet:'<rect x="3" y="6" width="18" height="15" rx="2"/><path d="M3 10h18M16 15h2M5 6V4h13"/>',
+  zap:'<path d="m13 2-9 12h7l-1 8 10-13h-7l0-7Z"/>',
+  shield:'<path d="M12 2 4 5v6c0 5 3 8 8 11 5-3 8-6 8-11V5l-8-3Z"/><path d="m9 12 2 2 4-5"/>',
+  layers:'<path d="m12 2 9 5-9 5-9-5 9-5ZM3 12l9 5 9-5M3 17l9 5 9-5"/>',
+  info:'<circle cx="12" cy="12" r="10"/><path d="M12 11v6M12 7h.01"/>',
+  copy:'<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/>',
+  arrows:'<path d="M4 7h16m-4-4 4 4-4 4M20 17H4m4-4-4 4 4 4"/>',
+  calendar:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18"/>',
+  flame:'<path d="M12 22c5 0 8-4 8-9 0-3-2-6-4-8 .3 4-2 5-2 5 0-3-2-6-4-8-1 5-6 7-6 12 0 4 3 8 8 8Z"/><path d="M12 22c3 0 4-2 4-4 0-2-1-4-3-5 0 3-3 3-3 6 0 2 1 3 2 3Z"/>',
+  code:'<path d="m8 5-6 7 6 7M16 5l6 7-6 7M14 3l-4 18"/>',
+  image:'<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8" cy="8" r="2"/><path d="m3 17 5-5 4 4 3-3 6 7"/>',
+  fuel:'<path d="M4 3h10v18H4zM7 6h4M14 8l3 3v8a2 2 0 0 0 4 0v-9l-3-3"/>',
+  refresh:'<path d="M20 11a8 8 0 0 0-14-5L3 9M3 3v6h6M4 13a8 8 0 0 0 14 5l3-3M21 21v-6h-6"/>',
+  check:'<path d="m4 12 5 5L20 6"/>',
+  rocket:'<path d="M4 16c0-5 6-11 16-12-.5 10-7 16-12 16l-4-4ZM11 13l-5 5M14 10h.01M5 19l-2 3M19 5l3-2"/>',
+  send:'<path d="m22 2-7 20-4-9-9-4L22 2ZM11 13 22 2"/>',
+  dollar:'<circle cx="12" cy="12" r="10"/><path d="M12 5v14M16 8c-1-2-7-2-8 1-1 3 8 3 8 6-1 3-7 3-8 1"/>',
+  swap:'<path d="M3 7h18m-4-4 4 4-4 4M21 17H3m4-4-4 4 4 4"/>',
+  message:'<path d="M20 11a8 8 0 0 1-8 8 10 10 0 0 1-4-1l-5 3 1-6a8 8 0 1 1 16-4Z"/><path d="M8 11h.01M12 11h.01M16 11h.01"/>',
+  clock:'<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>',
+  chevron:'<path d="m9 5 7 7-7 7"/>',
+  external:'<path d="M13 5h6v6M19 5 10 14M19 13v5a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h5"/>',
+  sparkle:'<path d="m12 2 2.5 7.5L22 12l-7.5 2.5L12 22l-2.5-7.5L2 12l7.5-2.5L12 2Z"/>',
+  gift:'<rect x="3" y="10" width="18" height="11" rx="1"/><path d="M2 7h20v4H2zM12 7v14M12 7c-8 0-8-6-4-6 3 0 4 6 4 6Zm0 0c8 0 8-6 4-6-3 0-4 6-4 6Z"/>',
+  lock:'<rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/>',
+  globe:'<circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2c-6 6-6 14 0 20M12 2c6 6 6 14 0 20"/>'
+};
+export function icon(name){return `<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${shapes[name]||shapes.info}</svg>`}
+export function hydrateIcons(root=document){root.querySelectorAll('[data-icon]').forEach(node=>{node.innerHTML=icon(node.dataset.icon)})}

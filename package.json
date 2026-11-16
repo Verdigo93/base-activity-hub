@@ -1,0 +1,13 @@
+{
+  "name": "base-activity-hub",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Dependency-free Base activity dashboard with explicit wallet transactions and optional analytics API",
+  "scripts": {
+    "start": "node api/server.mjs",
+    "dev": "node api/server.mjs",
+    "test": "node --test tests/*.test.mjs"
+  },
+  "engines": { "node": ">=20" }
+}
