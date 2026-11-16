@@ -17,7 +17,7 @@ test('x402 Mainnet action cannot initiate a testnet payment',()=>{
  assert.match(app,/unavailable:true/);
  assert.doesNotMatch(app,/switchNetwork\(84532\)/);
  const server=read('api/server.mjs'), mainnet=read('api/x402-mainnet.mjs');
- assert.match(server,/handleMainnetX402Challenge\(req,res,url\)/);
+ assert.match(server,/handleMainnetX402Challenge\(req,res,url,profile\)/);
  assert.match(mainnet,/network: 'eip155:8453'/);
  assert.match(mainnet,/amount: '10000'/);
  assert.match(mainnet,/if \(req\.headers\['payment-signature'\] \|\| req\.headers\['x-payment'\]\)/);
