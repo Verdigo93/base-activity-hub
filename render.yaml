@@ -1,0 +1,16 @@
+# Base Activity Hub: Render free-tier preview deployment
+# This hosts the website and read-only analytics API, NOT smart contracts.
+services:
+  - type: web
+    name: base-activity-hub
+    runtime: node
+    plan: free
+    branch: main
+    buildCommand: npm test
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NODE_VERSION
+        value: "22.22.0"
