@@ -4,7 +4,7 @@
  * Neither this server nor the facilitator needs a customer private key.
  */
 const ADDRESS=/^0x[0-9a-fA-F]{40}$/, HASH=/^0x[0-9a-fA-F]{64}$/, SIGNATURE=/^0x[0-9a-fA-F]{130}$/;
-const same=(a,b)=>String(a??'').toLowerCase()===String(b??'');
+const same=(a,b)=>String(a??'').toLowerCase()===String(b??'').toLowerCase();
 export const MAINNET_X402=Object.freeze({
   network:'eip155:8453',chainId:8453,
   asset:'0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
