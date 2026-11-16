@@ -5,6 +5,7 @@ import {readFile} from 'node:fs/promises';
 import {existsSync, createReadStream} from 'node:fs';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
+import {handleX402} from './x402.mjs';
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const envPath=path.join(root,'.env');
 if(existsSync(envPath)){
@@ -68,6 +69,7 @@ async function duneRows(address){if(!duneKey||!duneQuery)throw Error('Dune integ
 const server=http.createServer(async(req,res)=>{
   try{
     const url=new URL(req.url,`http://${req.headers.host||'localhost'}`);
+    if(url.pathname==='/api/x402/report')return await handleX402(req,res,url,profile);
     if(url.pathname==='/api/health')return respond(res,200,{ok:true,etherscanConfigured:Boolean(apiKey),alchemyConfigured:Boolean(alchemyKey),duneConfigured:Boolean(duneKey&&duneQuery)});
     if(url.pathname==='/api/profile'){
       const address=url.searchParams.get('address')||'';

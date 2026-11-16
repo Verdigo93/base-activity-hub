@@ -44,7 +44,7 @@ For the third-party checker shown in the reference screenshot see [Alpha Drops B
 | Dune hook | 🟡 Parameterized query execution endpoint | Needs your own query ID/API key; linked dashboard alone isn't a wallet API |
 | ERC-8021 Builder Code | ✅ Schema-0 suffix generation & inclusion | Add code from Base Dashboard; test attribution after launch |
 | Token swap | 🟡 Safe outbound link to Uniswap Base | No integrated swap quotation/transaction API yet |
-| x402 micropayment | 🟡 Clearly labeled future integration | Real facilitator/resource/payment verification not configured |
+| x402 micropayment | 🧪 Base Sepolia test USDC flow with HTTP 402 + EIP-712 + facilitator | Testnet only; requires test USDC and wallet; Mainnet disabled until verified production facilitator and security review |
 | Base App / Mini App registration | 🟡 Manifest template + instructions | Requires real domain, owner signature and Base Dashboard submission |
 
 **All current live money actions require explicit wallet signatures.** The site never asks for secret phrases/private keys. Fees in the UI are estimates; gas can exceed cents, particularly with contract deployments. Onchain activity does not confer official Base status or guarantee airdrops.

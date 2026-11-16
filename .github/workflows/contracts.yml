@@ -1,0 +1,19 @@
+name: Contract compilation (testnet readiness)
+on:
+  push:
+    paths: ['contracts/**', 'foundry.toml', '.github/workflows/contracts.yml']
+  pull_request:
+    paths: ['contracts/**', 'foundry.toml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  compile:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: foundry-rs/foundry-toolchain@v1
+      - name: Compile Solidity sources
+        run: forge build --sizes
+      - name: Run Foundry tests
+        run: forge test -vv
