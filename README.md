@@ -53,6 +53,12 @@ For the third-party checker shown in the reference screenshot see [Alpha Drops B
 
 Minting an NFT and deploying a contract are set up to send the fixed 0.10 USDC service fee to **`0x5F5d8B3Cf23368b9B5fab4e4A391A998803c292F`**. This is your public wallet address, and **must also be provided as the `treasury` constructor argument** when deploying BOTH NFT and Factory contracts; editing `config.js` alone cannot reroute already-deployed contracts. The app checks the onchain `treasury()`, `usdc()` and fee amount before granting payment approval and blocks mismatches. Fees are NOT active until those contracts have been deployed/verified.
 
+## Activity sharing + optional indexed analytics
+
+- **Share My Base Activity** creates a personalized PNG in the browser from available wallet data. On supported mobile devices it uses native sharing with the image; on desktop it downloads the PNG and opens a prefilled X composer (users attach the PNG manually). No automatic social posts and no wallet signature.
+- **Next Milestones** shows suggested targets from observed wallet activity. These are independent community milestones, not Base rewards.
+- For sampled activity history, set `ALCHEMY_API_KEY` as a **private Render environment variable** from a Base-enabled application at https://dashboard.alchemy.com/. Never commit keys to GitHub. The server uses bounded transfers history for Base Mainnet / Sepolia. Wallet age comes from the oldest observed transfer, contract destinations and active days are a partial sample, and gas is for a few recent receipt samples only. Not a verified global ranking. Alchemy pricing, quotas and features can change; check your plan before enabling traffic.
+
 ## Configuration
 
 Edit `config.js`. Public contract addresses and `baseBuilderCode` are safe to expose; private keys and API keys are not.

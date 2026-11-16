@@ -1,5 +1,6 @@
 /** Zero-dependency static + read-only analytics server. NEVER accepts or stores wallet secrets. */
 import http from 'node:http';
+import {alchemyEnrichProfile} from './alchemy.mjs';
 import {readFile} from 'node:fs/promises';
 import {existsSync, createReadStream} from 'node:fs';
 import path from 'node:path';
@@ -15,6 +16,7 @@ if(existsSync(envPath)){
 }
 const port=Number(process.env.PORT||4173);
 const apiKey=process.env.ETHERSCAN_API_KEY||'';
+const alchemyKey=process.env.ALCHEMY_API_KEY||'';
 const duneKey=process.env.DUNE_API_KEY||'';
 const duneQuery=process.env.DUNE_QUERY_ID||'';
 const rpcUrls={8453:process.env.BASE_RPC_URL||'https://mainnet.base.org',84532:process.env.BASE_SEPOLIA_RPC_URL||'https://sepolia.base.org'};
@@ -32,7 +34,11 @@ async function profile(address,chainId){
   let outgoing=null,source='rpc',warning='',balances={eth:null,usdc:null};
   try{outgoing=Number(BigInt(await chainRpc(chainId,'eth_getTransactionCount',[address,'latest'])));balances.eth=String(BigInt(await chainRpc(chainId,'eth_getBalance',[address,'latest'])))}catch(e){warning='Public RPC temporarily unavailable.'}
   const result={source,warning,address,chainId,transactions:outgoing,firstTransaction:null,daysOnBase:null,activeDays:null,contractDeploys:null,nftMints:null,uniqueContracts:null,totalGasWei:null,sampleGasWei:null,historyPartial:false,transactionsWindow:null,recent:[],activityDays:[],balances};
-  if(!apiKey){result.warning='To see historical activity, configure ETHERSCAN_API_KEY on the server. Base API access may require a paid tier.';return result}
+  if(!apiKey){
+    if(alchemyKey)try{return await alchemyEnrichProfile(result,address,chainId,alchemyKey)}catch(e){result.warning='Alchemy analytics unavailable: '+String(e.message).slice(0,130)}
+    else result.warning='To see historical activity, configure ALCHEMY_API_KEY (free Alchemy tier) or ETHERSCAN_API_KEY on the server.';
+    return result;
+  }
   try{
     // Fetch sequentially to reduce API burst/rate-limit failures.
     const first=await explorer(chainId,'txlist',address,{startblock:0,endblock:99999999,page:1,offset:1,sort:'asc'});
@@ -55,14 +61,14 @@ async function profile(address,chainId){
     result.historyPartial=latest.length===1000 || (outgoing!==null&&outgoing>own.length);
     if(!result.historyPartial)result.totalGasWei=result.sampleGasWei;
     if(latest.length===1000){result.warning='Historical counts of active days, deployments and NFT mints may be partial (latest 1,000 records).';}
-  }catch(err){result.warning=`Explorer data unavailable: ${String(err.message).slice(0,170)}. Only RPC values shown.`;result.source='rpc'}
+  }catch(err){result.warning=`Explorer data unavailable: ${String(err.message).slice(0,170)}. Only RPC values shown.`;result.source='rpc';if(alchemyKey)try{return await alchemyEnrichProfile(result,address,chainId,alchemyKey)}catch{}}
   return result;
 }
 async function duneRows(address){if(!duneKey||!duneQuery)throw Error('Dune integration not configured. Set DUNE_API_KEY and DUNE_QUERY_ID for your own parameterized query.');if(!/^\d{3,12}$/.test(duneQuery))throw Error('Invalid Dune query ID');const j=await requestJson(`https://api.dune.com/api/v1/query/${duneQuery}/execute`,{method:'POST',headers:{'Content-Type':'application/json','X-Dune-API-Key':duneKey},body:JSON.stringify({query_parameters:{wallet_address:address}})});if(!j.execution_id)throw Error('Dune did not return an execution ID');return {executionId:j.execution_id,status:j.state}}
 const server=http.createServer(async(req,res)=>{
   try{
     const url=new URL(req.url,`http://${req.headers.host||'localhost'}`);
-    if(url.pathname==='/api/health')return respond(res,200,{ok:true,etherscanConfigured:Boolean(apiKey),duneConfigured:Boolean(duneKey&&duneQuery)});
+    if(url.pathname==='/api/health')return respond(res,200,{ok:true,etherscanConfigured:Boolean(apiKey),alchemyConfigured:Boolean(alchemyKey),duneConfigured:Boolean(duneKey&&duneQuery)});
     if(url.pathname==='/api/profile'){
       const address=url.searchParams.get('address')||'';
       const chainId=Number(url.searchParams.get('chainId')||8453);

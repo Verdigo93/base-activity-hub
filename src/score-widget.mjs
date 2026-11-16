@@ -10,7 +10,7 @@ export const SCORE_RULES = Object.freeze([
 export function calculateBaseScore(profile, now=Date.now()) {
   const recentBoundary=new Date(now-29*86400000).toISOString().slice(0,10);
   const today=new Date(now).toISOString().slice(0,10);
-  const recentActiveDays=profile?.source==='etherscan' && Array.isArray(profile?.activityDays)
+  const recentActiveDays=['etherscan','alchemy'].includes(profile?.source) && Array.isArray(profile?.activityDays)
     ? profile.activityDays.filter(d => d?.day>=recentBoundary && d.day<=today && Number(d.count)>0).length : null;
   const gasRaw=profile?.totalGasWei ?? profile?.sampleGasWei ?? null;
   let gasEth=null;
@@ -26,7 +26,7 @@ export function calculateBaseScore(profile, now=Date.now()) {
   const available=breakdown.filter(r=>r.points!==null);
   const complete=available.length===SCORE_RULES.length;
   return {breakdown,score:complete?Math.round(available.reduce((sum,r)=>sum+r.points,0)):null,
-    availableCategories:available.length,partial:profile?.historyPartial===true || profile?.source!=='etherscan',
+    availableCategories:available.length,partial:profile?.historyPartial===true || !['etherscan','alchemy'].includes(profile?.source),
     source:profile?.source||'unknown'};
 }
 
@@ -41,6 +41,7 @@ if(typeof document!=='undefined'){
   function setStatus(msg,kind='normal'){scoreStatus.textContent=msg;scoreStatus.dataset.kind=kind;}
   function paint(profile){
     const result=calculateBaseScore(profile);
+    window.dispatchEvent(new CustomEvent('bah:scorecard-data',{detail:{profile,address:scoreInput.value.trim(),chainId:selectedChain}}));
     const available=result.availableCategories;
     $('scoreValue').textContent=result.score===null?'—':String(result.score);
     $('scoreRing').style.setProperty('--score-deg',result.score===null?'0deg':`${result.score*3.6}deg`);
@@ -70,8 +71,8 @@ if(typeof document!=='undefined'){
       ? limited?'*Різні адреси контрактних викликів у доступній вибірці — не кількість застосунків. Дані можуть бути неповними.':'*Оцінка різних адрес контрактних викликів, не кількості застосунків.'
       : limited?'*Distinct contract call destinations in the available sample; not verified app count. History may be incomplete.':'*Distinct contract call destinations, not verified app count.';
     $('scoreDisclaimer').textContent=label;
-    if(result.score===null){setStatus(t('Full score needs explorer history. Set ETHERSCAN_API_KEY on Render; no rank or tier is invented.',
-      'Для повного балу потрібна історія Explorer. Додай ETHERSCAN_API_KEY у Render; вигаданих рейтингів немає.'),'notice');}
+    if(result.score===null){setStatus(t('Full score needs indexed history. Set ALCHEMY_API_KEY on Render (or explorer API); no rank or tier is invented.',
+      'Для повного балу потрібна історія операцій. Додай ALCHEMY_API_KEY у Render; вигаданих рейтингів немає.'),'notice');}
     else setStatus(result.partial?t('Estimated from the latest available transactions; not an official Base or Alpha Drops score.',
       'Оцінка за доступними транзакціями; це не офіційний рейтинг Base або Alpha Drops.'):
       t('Community estimate using transparent scoring rules, not an official Base or Alpha Drops score.',
