@@ -14,6 +14,16 @@
 
 `npm test` runs local ABI, amount parsing, Keccak and ERC-8021 test cases.
 
+## Base Activity Score (unofficial)
+
+A public wallet score panel is available on the home page for both **Base Mainnet (8453)** and **Base Sepolia (84532)**. Enter any public EVM address or connect a wallet, then select the network in the top navigation. The score is an **independent activity estimate**, not the Alpha Drops ranking, Base's official score, a proof of eligibility, or a guarantee of rewards. It never invents Top 1% or OG labels.
+
+Transparent community scoring weights total 100: outgoing transactions 30 (target 100), wallet age 20 (target 365 days), *estimated* distinct contract call destinations 25 (target 25), active days in the last 30 days 15 (target 10 days), observed gas in ETH 10 (target 0.01 ETH). If historical data is unavailable, the overall score remains unavailable (`—`), rather than making up missing numbers. Sample-limited history is explicitly flagged.
+
+**Hosting setup required:** add `ETHERSCAN_API_KEY` to the **Render service environment** (never to GitHub). Etherscan V2 Base indexed API access may require a paid tier. Without it, the backend still fetches available RPC balances and outgoing transaction count. Onchain transaction count and age can differ for contract wallets or account abstraction.
+
+For the third-party checker shown in the reference screenshot see [Alpha Drops Base Score](https://alphadrops.net/checker/base-score); its proprietary methodology and ranking are *not* replicated here.
+
 ## Included features
 
 | Feature | Implementation | Limitations |

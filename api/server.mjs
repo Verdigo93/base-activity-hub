@@ -31,7 +31,7 @@ function slimTx(tx){const gas=BigInt(tx.gasUsed||'0')*BigInt(tx.gasPrice||'0');r
 async function profile(address,chainId){
   let outgoing=null,source='rpc',warning='',balances={eth:null,usdc:null};
   try{outgoing=Number(BigInt(await chainRpc(chainId,'eth_getTransactionCount',[address,'latest'])));balances.eth=String(BigInt(await chainRpc(chainId,'eth_getBalance',[address,'latest'])))}catch(e){warning='Public RPC temporarily unavailable.'}
-  const result={source,warning,address,chainId,transactions:outgoing,firstTransaction:null,daysOnBase:null,activeDays:null,contractDeploys:null,nftMints:null,uniqueContracts:null,totalGasWei:null,transactionsWindow:null,recent:[],activityDays:[],balances};
+  const result={source,warning,address,chainId,transactions:outgoing,firstTransaction:null,daysOnBase:null,activeDays:null,contractDeploys:null,nftMints:null,uniqueContracts:null,totalGasWei:null,sampleGasWei:null,historyPartial:false,transactionsWindow:null,recent:[],activityDays:[],balances};
   if(!apiKey){result.warning='To see historical activity, configure ETHERSCAN_API_KEY on the server. Base API access may require a paid tier.';return result}
   try{
     // Fetch sequentially to reduce API burst/rate-limit failures.
@@ -47,11 +47,13 @@ async function profile(address,chainId){
     result.activeDays=Object.keys(dayCounts).length;
     result.transactionsWindow=own.length;
     result.contractDeploys=own.filter(t=>(!t.to||t.to==='0x') && t.isError!=='1').length;
+    // Estimate unique target contracts by calldata-bearing calls, not verified app identities.
+    result.uniqueContracts=new Set(own.filter(t=>t.to&&t.to!=='0x'&&t.input&&t.input!=='0x'&&t.isError!=='1').map(t=>t.to.toLowerCase())).size;
     result.nftMints=nfts.filter(t=>t.from?.toLowerCase()==='0x0000000000000000000000000000000000000000' && t.to?.toLowerCase()===address.toLowerCase()).length;
     result.recent=latest.slice(0,12).map(slimTx);
-    if(outgoing!==null&&outgoing<=1000&&latest.length<1000)result.totalGasWei=own.reduce((sum,t)=>sum+BigInt(t.gasUsed||'0')*BigInt(t.gasPrice||'0'),0n).toString();
-    // Contract identification by simply counting destination addresses would be inaccurate; leave it unavailable.
-    result.uniqueContracts=null;
+    result.sampleGasWei=own.reduce((sum,t)=>sum+BigInt(t.gasUsed||'0')*BigInt(t.gasPrice||'0'),0n).toString();
+    result.historyPartial=latest.length===1000 || (outgoing!==null&&outgoing>own.length);
+    if(!result.historyPartial)result.totalGasWei=result.sampleGasWei;
     if(latest.length===1000){result.warning='Historical counts of active days, deployments and NFT mints may be partial (latest 1,000 records).';}
   }catch(err){result.warning=`Explorer data unavailable: ${String(err.message).slice(0,170)}. Only RPC values shown.`;result.source='rpc'}
   return result;
