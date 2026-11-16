@@ -100,21 +100,61 @@ abstract contract Basic721 {
 contract BaseActivityNFT is Basic721 {
     IERC20Payment public immutable usdc;
     address public immutable treasury;
-    uint256 public constant MINT_FEE = 100_000;
+    uint256 public constant COMMON_PRICE = 100_000;
+    uint256 public constant RARE_PRICE = 500_000;
+    uint256 public constant LEGENDARY_PRICE = 1_000_000;
+    uint256 public constant COMMON_SUPPLY = 10_000;
+    uint256 public constant RARE_SUPPLY = 1_000;
+    uint256 public constant LEGENDARY_SUPPLY = 100;
+    uint256[3] public mintedPerTier;
     string[3] private _artworkUris;
-    event Minted(address indexed collector,uint256 indexed tokenId,uint256 indexed artworkKind);
+    uint256 private _unlocked = 1;
+
+    event Minted(address indexed collector,uint256 indexed tokenId,uint256 indexed artworkKind,uint256 priceUsdc);
 
     constructor(address usdcToken,address payout,string[3] memory artworkUris)
-        Basic721("Base Activity Originals","BAO") {
+        Basic721("Base Activity Originals", "BAO") {
         require(usdcToken.code.length>0,"USDC must be deployed contract");
         require(payout!=address(0),"Treasury must be set");
-        usdc=IERC20Payment(usdcToken);treasury=payout;_artworkUris=artworkUris;
+        for(uint256 i=0;i<3;i++){
+            require(bytes(artworkUris[i]).length>0,"Empty token URI");
+        }
+        usdc=IERC20Payment(usdcToken);
+        treasury=payout;
+        _artworkUris=artworkUris;
     }
-    function mint(uint256 artworkKind) external returns(uint256 tokenId){
+    function mintPrice(uint256 artworkKind) public pure returns(uint256) {
         require(artworkKind<3,"Unknown artwork");
-        require(usdc.transferFrom(msg.sender,treasury,MINT_FEE),"USDC payment failed");
+        if(artworkKind==0)return COMMON_PRICE;
+        if(artworkKind==1)return RARE_PRICE;
+        return LEGENDARY_PRICE;
+    }
+    function tierMaxSupply(uint256 artworkKind) public pure returns(uint256) {
+        require(artworkKind<3,"Unknown artwork");
+        if(artworkKind==0)return COMMON_SUPPLY;
+        if(artworkKind==1)return RARE_SUPPLY;
+        return LEGENDARY_SUPPLY;
+    }
+    function artworkUri(uint256 artworkKind) external view returns(string memory) {
+        require(artworkKind<3,"Unknown artwork");
+        return _artworkUris[artworkKind];
+    }
+    function mint(uint256 artworkKind) external returns(uint256 tokenId) {
+        require(_unlocked==1,"Reentrant mint");
+        uint256 price=mintPrice(artworkKind);
+        require(mintedPerTier[artworkKind]<tierMaxSupply(artworkKind),"Tier sold out");
+        _unlocked=2;
+        mintedPerTier[artworkKind]+=1;
+        require(usdc.transferFrom(msg.sender,treasury,price),"USDC payment failed");
         tokenId=_mint(msg.sender,_artworkUris[artworkKind]);
-        emit Minted(msg.sender,tokenId,artworkKind);
+        if(msg.sender.code.length>0){
+            require(
+                IERC721Receiver(msg.sender).onERC721Received(msg.sender,address(0),tokenId,"")==IERC721Receiver.onERC721Received.selector,
+                "Receiver rejected NFT"
+            );
+        }
+        emit Minted(msg.sender,tokenId,artworkKind,price);
+        _unlocked=1;
     }
 }
 
