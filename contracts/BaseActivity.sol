@@ -99,6 +99,7 @@ abstract contract Basic721 {
 
 contract BaseActivityNFT is Basic721 {
     IERC20Payment public immutable usdc;
+    address public immutable creator;
     address public immutable treasury;
     uint256 public constant COMMON_PRICE = 100_000;
     uint256 public constant RARE_PRICE = 500_000;
@@ -120,8 +121,12 @@ contract BaseActivityNFT is Basic721 {
             require(bytes(artworkUris[i]).length>0,"Empty token URI");
         }
         usdc=IERC20Payment(usdcToken);
+        creator=msg.sender;
         treasury=payout;
         _artworkUris=artworkUris;
+    }
+    function contractURI() external pure returns(string memory) {
+        return "https://base-activity-hub.onrender.com/metadata/collection.json";
     }
     function mintPrice(uint256 artworkKind) public pure returns(uint256) {
         require(artworkKind<3,"Unknown artwork");
