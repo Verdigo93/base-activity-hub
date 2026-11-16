@@ -16,7 +16,10 @@ test('x402 Mainnet action cannot initiate a testnet payment',()=>{
  assert.match(app,/Check 0\.01 USDC payment readiness/);
  assert.match(app,/previewOnly:true/);
  assert.match(app,/No signature or charge/);
- assert.doesNotMatch(app,/eth_signTypedData_v4/);
+ assert.match(app,/eth_signTypedData_v4/);
+ assert.match(app,/settlementEnabled===true/);
+ assert.match(app,/validateMainnetX402/);
+ assert.match(app,/Pay 0\\.01 USDC/);
  assert.doesNotMatch(app,/switchNetwork\(84532\)/);
  const server=read('api/server.mjs'), mainnet=read('api/x402-mainnet.mjs');
  assert.match(server,/handleMainnetX402Challenge\(req,res,url,profile\)/);
