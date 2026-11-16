@@ -24,7 +24,7 @@ export function mainnetChallenge(wallet,publicOrigin='https://base-activity-hub.
     resource:{url:url.href,description:'Base Activity Hub extended wallet report (Base Mainnet)',mimeType:'application/json'},
     accepts:[{scheme:'exact',network:MAINNET_X402.network,amount:MAINNET_X402.amount,
       asset:MAINNET_X402.asset,payTo:MAINNET_X402.payTo,maxTimeoutSeconds:300,
-      extra:{assetTransferMethod:'eip3009',name:'USDC',version:'2'}}],
+      extra:{assetTransferMethod:'eip3009',name:'USD Coin',version:'2'}}],
     extensions:{}};
 }
 
