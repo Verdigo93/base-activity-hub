@@ -111,25 +111,44 @@ function readFields(){const o={};$('modalFields').querySelectorAll('[name]').for
 function assertConnected(){if(!state.account||!state.provider)throw Error('Connect your wallet to continue.')}
 function assertConfiguredContract(name){const addr=config()[name];if(!isAddress(addr))throw Error(`${name} is not yet deployed/configured.`);return addr}
 async function walletTx({to,data='0x',value='0x0'},label,type){assertConnected();if(!isAddress(to))throw Error('Invalid recipient or contract address.');const suffix=CONFIG.baseBuilderCode?builderCodeSuffix(CONFIG.baseBuilderCode):'';const attributedData=data+(suffix?suffix.slice(2):'');const walletChain=Number(BigInt(await rpc('eth_chainId',[])));if(walletChain!==state.chainId)throw Error('Wallet is on the wrong chain. Switch to the selected Base network.');const tx={from:state.account,to,data:attributedData,value};const hashValue=await rpc('eth_sendTransaction',[tx]);if(!/^0x[0-9a-f]{64}$/i.test(hashValue))throw Error('Wallet returned an unexpected transaction hash.');setFeedback(tr('Transaction submitted. Waiting for network confirmation…','Транзакцію надіслано. Очікуємо підтвердження мережі…'),'info',hashValue);let receipt=null;for(let i=0;i<65;i++){await new Promise(resolve=>setTimeout(resolve,1600));receipt=await rpc('eth_getTransactionReceipt',[hashValue]);if(receipt)break}if(!receipt){setFeedback(tr('Transaction submitted but not confirmed. Please inspect it on BaseScan before retrying.','Транзакцію надіслано, але не підтверджено. Перевір BaseScan перед повторною спробою.'),'info',hashValue);throw Error('Transaction still pending. Check BaseScan before retrying.')}if(BigInt(receipt.status)!==1n)throw Error('The transaction reverted onchain. Check the explorer; network gas may still be charged.');saveEvent({type,label,hash:hashValue,date:today(),timestamp:Date.now()});setFeedback(tr('Success! Transaction confirmed on Base.','Успіх! Транзакцію підтверджено в Base.'),'info',hashValue);toast(tr('Confirmed on Base','Підтверджено в Base'),'success');loadProfile().catch(()=>{});return hashValue}
-async function verifyPaidContract(spender,kind){
-  // Before asking for ANY allowance, verify the fee recipient, token and fixed price from the actual contract.
-  // The UI configuration is public; funds are really routed by the deployed immutable contract.
-  const configuredTreasury=CONFIG.treasuryReceiver, configuredToken=config().usdc;
-  if(!isAddress(configuredTreasury)||!isAddress(configuredToken))throw Error('Fee recipient or payment token is not configured.');
-  const signatures=['treasury()','usdc()',kind==='nft'?'MINT_FEE()':'DEPLOY_FEE()'];
-  const [code,treasuryRaw,tokenRaw,feeRaw]=await Promise.all([
-    rpc('eth_getCode',[spender,'latest']),
-    ...signatures.map(sig=>rpc('eth_call',[{to:spender,data:callData(sig)},'latest']))
+async function verifyPaidContract(spender,kind,artworkKind=0){
+ const configuredTreasury=CONFIG.treasuryReceiver,configuredToken=config().usdc;
+ if(!isAddress(configuredTreasury)||!isAddress(configuredToken))throw Error('USDC or payout wallet is not configured.');
+ const item=kind==='nft'?CONFIG.nftItems.find(n=>n.id===artworkKind):null;
+ if(kind==='nft'&&!item)throw Error('Invalid NFT tier');
+ const feeData=kind==='nft'?callData('mintPrice(uint256)',['uint256'],[artworkKind]):callData('DEPLOY_FEE()');
+ const [code,treasuryRaw,usdcRaw,feeRaw]=await Promise.all([
+  rpc('eth_getCode',[spender,'latest']),
+  rpc('eth_call',[{to:spender,data:callData('treasury()')},'latest']),
+  rpc('eth_call',[{to:spender,data:callData('usdc()')},'latest']),
+  rpc('eth_call',[{to:spender,data:feeData},'latest'])
+ ]);
+ if(!code||code==='0x')throw Error('Payment contract has no code on Base Mainnet.');
+ const payout='0x'+String(treasuryRaw).slice(-40),token='0x'+String(usdcRaw).slice(-40);
+ if(!isAddress(payout)||payout.toLowerCase()!==configuredTreasury.toLowerCase())throw Error('Payment blocked: unexpected contract treasury.');
+ if(!isAddress(token)||token.toLowerCase()!==configuredToken.toLowerCase())throw Error('Payment blocked: unexpected USDC token.');
+ const amount=BigInt(feeRaw),expected=kind==='nft'?BigInt(item.priceUnits):100000n;
+ if(amount!==expected)throw Error('Payment blocked: tier price differs from onchain fee.');
+ if(kind==='nft'){
+  const [cap,minted]=await Promise.all([
+   rpc('eth_call',[{to:spender,data:callData('tierMaxSupply(uint256)',['uint256'],[artworkKind])},'latest']),
+   rpc('eth_call',[{to:spender,data:callData('mintedPerTier(uint256)',['uint256'],[artworkKind])},'latest'])
   ]);
-  if(!code||code==='0x')throw Error('Paid contract has not been deployed on this network.');
-  const payout='0x'+String(treasuryRaw).slice(-40), token='0x'+String(tokenRaw).slice(-40);
-  if(!isAddress(payout)||payout.toLowerCase()!==configuredTreasury.toLowerCase())
-    throw Error('Payment blocked: the deployed contract treasury is NOT your configured wallet.');
-  if(!isAddress(token)||token.toLowerCase()!==configuredToken.toLowerCase())
-    throw Error('Payment blocked: the contract uses a different payment token.');
-  if(BigInt(feeRaw)!==100000n)throw Error('Payment blocked: unexpected contract service fee.');
+  if(BigInt(cap)!==BigInt(item.maxSupply))throw Error('Payment blocked: NFT scarcity limit differs from website.');
+  if(BigInt(minted)>=BigInt(cap))throw Error('This NFT tier is sold out.');
+ }
+ return amount;
 }
-async function usdcApproval(spender,amount){const token=assertConfiguredContract('usdc');const [tokenCode,spenderCode]=await Promise.all([rpc('eth_getCode',[token,'latest']),rpc('eth_getCode',[spender,'latest'])]);if(!tokenCode||tokenCode==='0x'||!spenderCode||spenderCode==='0x')throw Error('Configured token or contract is not deployed on the selected chain.');const allowed=await rpc('eth_call',[{from:state.account,to:token,data:callData('allowance(address,address)',['address','address'],[state.account,spender])},'latest']);if(BigInt(allowed)>=amount)return;setFeedback(tr('Step 1/2: approve the exact 0.10 USDC amount in your wallet.','Крок 1/2: дозволь списання рівно 0.10 USDC у гаманці.'));await walletTx({to:token,data:callData('approve(address,uint256)',['address','uint256'],[spender,amount])},'USDC approval · 0.10','approve')}
+async function usdcApproval(spender,amount){
+ const token=assertConfiguredContract('usdc');
+ const [tokenCode,spenderCode]=await Promise.all([rpc('eth_getCode',[token,'latest']),rpc('eth_getCode',[spender,'latest'])]);
+ if(!tokenCode||tokenCode==='0x'||!spenderCode||spenderCode==='0x')throw Error('USDC or contract is missing on Base Mainnet.');
+ const allowed=await rpc('eth_call',[{to:token,data:callData('allowance(address,address)',['address','address'],[state.account,spender])},'latest']);
+ if(BigInt(allowed)>=amount)return;
+ const amountText=formatUnits(amount,6,2);
+ setFeedback(`Step 1/2: approve exactly ${amountText} USDC in your wallet.`);
+ await walletTx({to:token,data:callData('approve(address,uint256)',['address','uint256'],[spender,amount])},`USDC approval · ${amountText}`,'approve');
+}
 async function executeAction(){if(state.busy||!state.modal)return;const {id,info}=state.modal;if(info.external){window.open('https://app.uniswap.org/swap?chain=base','_blank','noopener,noreferrer');return}if(info.unavailable)return;const form=readFields();try{assertConnected();state.busy=true;$('confirmModal').disabled=true;$('closeModal').disabled=true;$('cancelModal').disabled=true;
  if(id==='x402')throw Error('Mainnet x402 payments are not enabled.');
  await switchNetwork(state.chainId);const chain=config();let tx,label=getAction(id).title,type=id;
@@ -138,7 +157,16 @@ async function executeAction(){if(state.busy||!state.modal)return;const {id,info
   else if(id==='message'){if(!form.message||new TextEncoder().encode(form.message).length>280)throw Error('Message required, max 280 bytes UTF-8.');tx=chain.activityBoard?{to:await verifyActivityBoard(),data:callData('postMessage(string)',['string'],[form.message])}:{to:state.account,data:'0x'+Array.from(new TextEncoder().encode('Base Activity Hub: '+form.message)).map(b=>b.toString(16).padStart(2,'0')).join('')};label='Onchain message';}
   else if(id==='sendETH'){if(!isAddress(form.to))throw Error('Enter a valid recipient wallet address.');const amount=parseUnits(form.amount,18);if(form.to.toLowerCase()===state.account.toLowerCase())throw Error('Recipient is your own wallet. Enter a different address.');tx={to:form.to,value:hex(amount)};label=`Send ${form.amount} ETH`;}
   else if(id==='sendUSDC'){if(!isAddress(form.to))throw Error('Enter a valid recipient wallet address.');if(form.to.toLowerCase()===state.account.toLowerCase())throw Error('Recipient is your own wallet. Enter a different address.');const amount=parseUnits(form.amount,6);tx={to:assertConfiguredContract('usdc'),data:callData('transfer(address,uint256)',['address','uint256'],[form.to,amount])};label=`Send ${form.amount} USDC`;}
-  else if(id==='mint'){const spender=assertConfiguredContract('nftContract');await verifyPaidContract(spender,'nft');await usdcApproval(spender,100000n);setFeedback(tr('Step 2/2: mint the NFT and pay 0.10 USDC to the collection treasury.','Крок 2/2: мінт NFT та сплата 0.10 USDC отримувачу колекції.'));const kind=Number(form.kind);if(!Number.isInteger(kind)||kind<0||kind>2)throw Error('Invalid artwork type');tx={to:spender,data:callData('mint(uint256)',['uint256'],[kind])};label=`Mint NFT — ${CONFIG.nftItems[kind].name}`;}
+  else if(id==='mint'){
+   const artworkKind=Number(form.kind),item=CONFIG.nftItems.find(n=>n.id===artworkKind);
+   if(!Number.isInteger(artworkKind)||!item)throw Error('Select a valid NFT tier.');
+   const spender=assertConfiguredContract('nftContract');
+   const amount=await verifyPaidContract(spender,'nft',artworkKind);
+   await usdcApproval(spender,amount);
+   setFeedback(`Step 2/2: mint ${item.name} (${item.rarity}) for exactly ${item.priceUsdc} USDC. Confirm in your wallet.`);
+   tx={to:spender,data:callData('mint(uint256)',['uint256'],[artworkKind])};
+   label=`Mint NFT — ${item.name} · ${item.priceUsdc} USDC`;
+  }
   else if(id==='deploy'||id==='mintToken'){const spender=assertConfiguredContract('factoryContract');const contractType=id==='mintToken'?'token':form.type;const contractName=(form.name||'').trim();if(contractName.length<3||contractName.length>48)throw Error('Contract name must be 3–48 characters.');let sig,types,vals;const symbol=(form.symbol||'').trim();if(contractType==='counter'){sig='deployCounter(string)';types=['string'];vals=[contractName]}
     else if(contractType==='guestbook'){sig='deployGuestbook(string)';types=['string'];vals=[contractName]}
     else if(contractType==='storage'){sig='deployStorage(string)';types=['string'];vals=[contractName]}
