@@ -10,8 +10,8 @@ export const CONFIG = {
     },
     84532: {
       name: "Base Sepolia", rpcUrl: "https://sepolia.base.org", explorer: "https://sepolia.basescan.org",
-      // Set a Base Sepolia USDC address for paid actions after verifying its deployment.
-      usdc: "", activityBoard: "", nftContract: "", factoryContract: "",
+      // Circle official USDC on Base Sepolia (test tokens have no monetary value).
+      usdc: "0x036CbD53842c5426634e7929541eC2318f3dCF7e", activityBoard: "", nftContract: "", factoryContract: "",
     },
   },
   // Treasury is configured INSIDE NFT and factory contracts at deployment time.
