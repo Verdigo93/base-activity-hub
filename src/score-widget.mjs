@@ -92,13 +92,7 @@ if(typeof document!=='undefined'){
     selectedChain=8453;lastConnected=account;
     scoreInput.value=account;paint(profile);
   });
-  $('networkSelect').addEventListener('change',event=>{
-    selectedChain=Number(event.target.value)||8453;++requestId;
-    $('scoreNetwork').textContent='Base Mainnet';
-    const a=scoreInput.value.trim();if(addressOk(a))checkAddress(a);else reset();
-  });
   scoreGo.addEventListener('click',()=>checkAddress(scoreInput.value.trim()));
   scoreInput.addEventListener('keydown',e=>{if(e.key==='Enter')checkAddress(scoreInput.value.trim())});
-  $('languageButton').addEventListener('click',()=>{const a=scoreInput.value.trim();if(addressOk(a))checkAddress(a);else reset()});
   $('scoreNetwork').textContent='Base Mainnet';reset();
 }

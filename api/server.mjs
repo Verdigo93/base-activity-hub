@@ -69,7 +69,7 @@ async function duneRows(address){if(!duneKey||!duneQuery)throw Error('Dune integ
 const server=http.createServer(async(req,res)=>{
   try{
     const url=new URL(req.url,`http://${req.headers.host||'localhost'}`);
-    if(url.pathname==='/api/x402/report')return await handleX402(req,res,url,profile);
+    if(url.pathname==='/api/x402/report')return respond(res,503,{error:'Mainnet x402 payment integration is not enabled yet.'});
     if(url.pathname==='/api/health')return respond(res,200,{ok:true,etherscanConfigured:Boolean(apiKey),alchemyConfigured:Boolean(alchemyKey),duneConfigured:Boolean(duneKey&&duneQuery)});
     if(url.pathname==='/api/profile'){
       const address=url.searchParams.get('address')||'';
