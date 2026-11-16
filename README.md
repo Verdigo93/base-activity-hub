@@ -1,120 +1,93 @@
 # Base Activity Hub
 
-> GitHub publishing guide (Ukrainian): [GITHUB_PUBLISH_UA.md](GITHUB_PUBLISH_UA.md). This repository is development software; Base Mainnet deployments and paid functions are not yet enabled.
+**A light, responsive onchain activity dashboard for Base Mainnet.** Analyze an EVM wallet, send GM and check-ins, make transactions, discover contract and NFT features, and share wallet statistics as an image or an X post.
 
-**Light, responsive Web3 activity dashboard for Base.** This is a working development project with browser wallet integration, genuine EIP-1193 transaction flows, transparent USDC-paid mint/deploy contracts, an optional onchain analytics server, and a deployable website shell.
+- **Live app:** https://base-activity-hub.onrender.com/
+- **Network:** Base Mainnet (chain ID `8453`) only
+- **Language:** English
+- **Appearance:** Light and dark themes, with the user's preference saved in the browser
+- **Chain transaction fees:** Shown by the user's wallet before confirmation
+- **Maintainer:** [Verdigo93](https://github.com/Verdigo93)
 
-## Quick start (Windows, macOS, Linux)
+This is an **independent community tool**, not an official Base/Coinbase app. Onchain activity is **not** proof of airdrop eligibility or a promise of rewards.
 
-1. Install **Node.js 20+** from https://nodejs.org/.
-2. Unzip the project and open a terminal in the `base-activity-hub` directory.
-3. Run `npm start` (no `npm install` is necessary: there are zero package dependencies).
-4. Open **http://localhost:4173** in your browser. MetaMask / Coinbase Wallet extension or a wallet browser is needed for real transactions.
-5. For a first visual review, open `desktop-preview.png` or `mobile-preview.png`.
+## What works and what still needs deployment
 
-`npm test` runs local ABI, amount parsing, Keccak and ERC-8021 test cases.
+| Feature | Production status |
+|---|---|
+| English-only dashboard, dark/light themes, responsive UI | Implemented |
+| MetaMask/Coinbase injected-wallet connection | Implemented; requests Base Mainnet when connecting |
+| Live ETH/USDC balances and outgoing transaction count | Implemented via wallet/RPC |
+| Historical wallet statistics and activity heatmap | Available when indexed API data is provided; sampled histories are labeled incomplete |
+| GM, Daily Check-in, Onchain Message | Configured for [Mainnet ActivityBoard](https://basescan.org/address/0x050A046E37947bb8DAF2b2A1a3C00c191EB92942); live transactions require user approval |
+| ETH and native USDC transfers | Implemented; recipient and fee must be reviewed in the wallet |
+| Swap | Opens Uniswap; the swap is executed separately on Uniswap |
+| Share-card PNG | 1200 × 675 branded design generated in-browser; optional download |
+| Share to X | Opens a prefilled X composer with real available wallet stats and the app link |
+| NFT mint ($0.10 USDC service fee) | **Not live**: NFT contract needs deployment, verification, and testing |
+| Contract factory / ERC-20 creation ($0.10 USDC service fee) | **Not live**: factory contract needs deployment, verification, and testing |
+| x402 micropayments | **Not live on Mainnet**; testnet payment flow is not exposed through the production UI |
 
-## Base Activity Score (unofficial)
+Only connect a wallet you control. Never enter a seed phrase or private key. The website never needs custody of wallet keys.
 
-A public wallet score panel is available on the home page for both **Base Mainnet (8453)** and **Base Sepolia (84532)**. Enter any public EVM address or connect a wallet, then select the network in the top navigation. The score is an **independent activity estimate**, not the Alpha Drops ranking, Base's official score, a proof of eligibility, or a guarantee of rewards. It never invents Top 1% or OG labels.
+## Wallet activity rating: four 0–100 scores
 
-Transparent community scoring weights total 100: outgoing transactions 30 (target 100), wallet age 20 (target 365 days), *estimated* distinct contract call destinations 25 (target 25), active days in the last 30 days 15 (target 10 days), observed gas in ETH 10 (target 0.01 ETH). If historical data is unavailable, the overall score remains unavailable (`—`), rather than making up missing numbers. Sample-limited history is explicitly flagged.
+All four individual criteria display a **0–100** rating, not different denominators such as 30/30 or 20/20. Overall score also ranges **0–100**, calculated as a weighted average:
 
-**Hosting setup required:** add `ETHERSCAN_API_KEY` to the **Render service environment** (never to GitHub). Etherscan V2 Base indexed API access may require a paid tier. Without it, the backend still fetches available RPC balances and outgoing transaction count. Onchain transaction count and age can differ for contract wallets or account abstraction.
-
-For the third-party checker shown in the reference screenshot see [Alpha Drops Base Score](https://alphadrops.net/checker/base-score); its proprietary methodology and ranking are *not* replicated here.
-
-## Included features
-
-| Feature | Implementation | Limitations |
+| Criterion | Threshold for 100/100 | Weight |
 |---|---|---|
-| Light single-page responsive dashboard | ✅ Complete | Desktop, tablet, mobile |
-| English/Ukrainian toggle | ✅ Main navigation, labels and actions | Some secondary text remains English |
-| Connect injected EIP-1193 wallet | ✅ | WalletConnect QR / passkey are not integrated |
-| Base Mainnet / Base Sepolia selection | ✅ | User must authorize the chain switch |
-| ETH and USDC live balances | ✅ With connected wallet | Sepolia uses explicitly configured test token |
-| GM / Daily Check-in / Onchain message | ✅ Real onchain transactions | Uses the user’s own address if ActivityBoard isn't deployed |
-| Send ETH / USDC | ✅ Real transfers | Recipient/amount are provided and confirmed by user |
-| NFT mint | ✅ Transaction flow + Solidity contract | Requires deployed verified NFT contract + proper metadata URLs |
-| Deploy Counter/Guestbook/Storage/ERC20/ERC721 | ✅ Transaction flow + Solidity factory | Requires deployed verified factory contract |
-| 0.10 USDC fee to your treasury | ✅ Contract source implements exact atomic payment | Fee applies only after contract deployment; user approves exact amount separately |
-| Transaction confirmation / explorer link | ✅ | Requires wallet and network |
-| Daily tasks / achievements | ✅ UI and confirmed local history | Local history saved per device; not a universal score |
-| Historical Base wallet stats | ✅ Optional Etherscan V2 backend | Requires API key and Base tier access; truncated samples flagged |
-| Dune hook | 🟡 Parameterized query execution endpoint | Needs your own query ID/API key; linked dashboard alone isn't a wallet API |
-| ERC-8021 Builder Code | ✅ Schema-0 suffix generation & inclusion | Add code from Base Dashboard; test attribution after launch |
-| Token swap | 🟡 Safe outbound link to Uniswap Base | No integrated swap quotation/transaction API yet |
-| x402 micropayment | 🧪 Base Sepolia test USDC flow with HTTP 402 + EIP-712 + facilitator | Testnet only; requires test USDC and wallet; Mainnet disabled until verified production facilitator and security review |
-| Base App / Mini App registration | 🟡 Manifest template + instructions | Requires real domain, owner signature and Base Dashboard submission |
+| Transactions | 3,000 outgoing transactions | 30% |
+| Wallet age | First observed activity from Base Mainnet public launch (August 9, 2023) | 25% |
+| Contract destinations | 50 distinct call destinations | 25% |
+| Active days | 20 active days within the past 30 days | 20% |
 
-**All current live money actions require explicit wallet signatures.** The site never asks for secret phrases/private keys. Fees in the UI are estimates; gas can exceed cents, particularly with contract deployments. Onchain activity does not confer official Base status or guarantee airdrops.
+Formula: `round(tx × .30 + age × .25 + destinations × .25 + activeDays × .20)`.
 
-## Fee receiver configured for this build
+Individual values are linearly normalized up to 100. If an input is unavailable, no overall rating is invented. Wallet age and contract activity derived from Alchemy transfer history may be **sample-based** and do not necessarily cover a wallet's complete history. Contract destinations are not verified unique dApps. This is an independent engagement metric, not an official Base rank.
 
-Minting an NFT and deploying a contract are set up to send the fixed 0.10 USDC service fee to **`0x5F5d8B3Cf23368b9B5fab4e4A391A998803c292F`**. This is your public wallet address, and **must also be provided as the `treasury` constructor argument** when deploying BOTH NFT and Factory contracts; editing `config.js` alone cannot reroute already-deployed contracts. The app checks the onchain `treasury()`, `usdc()` and fee amount before granting payment approval and blocks mismatches. Fees are NOT active until those contracts have been deployed/verified.
+## Share My Base Activity
 
-## Activity sharing + optional indexed analytics
+The Share Card module generates a high-contrast 1200×675 image with wallet address, overall score (when available), outgoing transactions, days on Base, active days, contract destinations, and a prominent link to the website.
 
-- **Share My Base Activity** creates a personalized PNG in the browser from available wallet data. On supported mobile devices it uses native sharing with the image; on desktop it downloads the PNG and opens a prefilled X composer (users attach the PNG manually). No automatic social posts and no wallet signature.
-- **Next Milestones** shows suggested targets from observed wallet activity. These are independent community milestones, not Base rewards.
-- For sampled activity history, set `ALCHEMY_API_KEY` as a **private Render environment variable** from a Base-enabled application at https://dashboard.alchemy.com/. Never commit keys to GitHub. The server uses bounded transfers history for Base Mainnet / Sepolia. Wallet age comes from the oldest observed transfer, contract destinations and active days are a partial sample, and gas is for a few recent receipt samples only. Not a verified global ranking. Alchemy pricing, quotas and features can change; check your plan before enabling traffic.
+- **Download PNG** saves the image locally if the user wants it.
+- **Share to X** opens the official X compose intent with an English post filled with the wallet's current values and `https://base-activity-hub.onrender.com/`.
+- **Copy text** copies the same post text.
+- Automatic image attachment/posting is intentionally not promised: the user may attach the PNG manually and publishes only after confirming in X.
 
-## Configuration
+## Development
 
-Edit `config.js`. Public contract addresses and `baseBuilderCode` are safe to expose; private keys and API keys are not.
+Node.js 20+ is required. The project uses no runtime npm dependencies.
 
-- `chains[84532].activityBoard`, `nftContract`, `factoryContract`, `usdc`: testnet contract addresses to deploy first.
-- `chains[8453].activityBoard`, `nftContract`, `factoryContract`: mainnet contracts to deploy **only after security review**. Real Base USDC is preconfigured as a public chain address.
-- `baseBuilderCode`: enter your short Builder Code from [Base Dashboard](https://dashboard.base.org/) after registering. The app appends its ERC-8021 schema-0 suffix to transactions.
-- `nftItems`: collection assets and names.
-
-Copy `.env.example` to `.env` if enabling backend analytics:
-
-```env
-ETHERSCAN_API_KEY=your_server_only_key
-DUNE_API_KEY=your_server_only_key
-DUNE_QUERY_ID=your_own_parameterized_query_id
+```bash
+npm test
+npm start
 ```
 
-**Never put these secrets in `config.js`.** Etherscan V2 requires the `chainid` parameter (8453 or 84532). Base API access may require a paid plan. If it is unavailable the interface displays accurate RPC-only values and `—` instead of fake historical numbers.
+Open `http://localhost:4173` after starting the server. Contract compiler tests, EIP-1193 utilities, scoring behavior, and the X share URL are checked in the repository's automated test suite.
 
-### Contract deployment
+Render deploys the repository from `main`. The server includes `/api/health` and `/api/profile`. Optional variables should be kept in **Render Environment**, never in committed `.env` files:
 
-See [contracts/DEPLOY.md](contracts/DEPLOY.md). The Solidity sources include:
+- `ALCHEMY_API_KEY` for sampled indexed transfer analytics on Base;
+- `ETHERSCAN_API_KEY` for supported explorer history;
+- `DUNE_API_KEY` and `DUNE_QUERY_ID` for your own parametrized Dune query.
 
-- `ActivityBoard`: `gm()`, `dailyCheckIn()`, `postMessage(string)`.
-- `BaseActivityNFT`: ERC-721 with three artwork kinds and a fixed mint cost of 100,000 USDC base units (0.10 USD at 6 decimals) paid directly to the deployment-time treasury.
-- `BaseActivityFactory`: accepts exact 0.10 USDC and deploys user-owned Counter, Guestbook, Storage, Token and NFT Collection instances.
-- `TestOnlySixDecimalToken`: **testnet-only** mock, not USDC.
+## Smart contracts and payout
 
-**Important:** Solidity contracts have been authored but could not be compiled with `forge`/`solc` in this environment, and have NOT been audited or deployed on a real chain. Do not use them with real funds until they have been compiled, unit/integration tested, independently reviewed, deployed on Base Sepolia and verified on BaseScan.
+Contract source: [contracts/BaseActivity.sol](contracts/BaseActivity.sol). Read the contract source and review the constructor parameters **before** spending Mainnet ETH.
 
-### Production hosting
+- Mainnet ActivityBoard: `0x050A046E37947bb8DAF2b2A1a3C00c191EB92942`
+- Native Base Mainnet USDC: `0x833589fCD6EDB6E08f4c7C32D4f71b54bdA02913`
+- Intended service-fee recipient: `0x5F5d8B3Cf23368b9B5fab4e4A391A998803c292F`
+- Proposed NFT/factory service fee: `0.10 USDC` per successful paid action **plus gas**
 
-The Node server serves the frontend and proxies analytics API credentials. For deployment of this exact architecture use **Render, Railway, Fly.io or your own Docker VPS**. A static-only host (including a basic Vercel static build) will show the UI and wallet flows but not `/api/profile` unless you port the server to its serverless runtime.
+**NFT and Factory contract addresses are not yet configured.** Solidity compilation and automated tests do **not** replace independent review, deployment, transaction simulation, and verifying fee receiver / USDC token addresses onchain. Paid actions remain disabled until those steps are complete.
 
-Run `docker build -t base-activity-hub .` and expose `PORT=4173`, or use the `Dockerfile` on a provider that supports it. HTTPS is required for some wallet APIs and for production best practices.
+## Development roadmap
 
-The **Base Dashboard is an app registration / attribution service, not a web-hosting service.** Prepare your production URL, icon, screenshots, signed account association, and Builder Code. See `BASE_APP_SETUP_UA.md`.
+1. Verify ActivityBoard runtime on Mainnet through an actual wallet-initiated GM and Check-in.
+2. Audit/review NFT and factory contracts, deploy and verify them, then test a small real USDC mint and factory deployment.
+3. Implement and verify a **Mainnet** x402 paid resource. No Sepolia switching or test-USDC payments in the production UI.
+4. Improve analytics quality and cache/rate-limiting before promoting the app to a larger audience.
+5. Register the app / Builder Code in the Base developer dashboard after deployment and transaction checks.
 
-## References
-
-- https://docs.base.org/
-- https://github.com/base/skills/tree/master/skills/build-on-base
-- https://basescan.org/api
-- https://docs.etherscan.io/etherscan-v2
-- https://dune.com/nvthao/base-network-analytics-dashboard
-- https://dune.mintlify.app/api-reference/executions/endpoint/execute-query
-
-## Safety decisions
-
-- Never store a wallet private key or seed phrase.
-- Do not silently pay the owner. The only owner earnings implemented are explicitly disclosed paid NFT mint and paid factory deployment.
-- No infinite USDC approvals: the UI requests approval only for exactly 0.10 USDC per action.
-- External swaps are sent to the official Uniswap website, not an unknown embedded contract.
-- Wallet profile values that cannot be established are shown as unavailable, not fabricated.
-- NFT art/brand is community-made and explicitly not affiliated with Base or Coinbase.
-
-## Wallet activity rating (independent 0–100 metric)
-
-Every component displays **a score from 0 to 100**. The overall score is **round(Transactions × 0.30 + Wallet age × 0.25 + Contract destinations × 0.25 + Active days × 0.20)**. Full marks: 3,000 outgoing transactions; earliest observed activity since Base public launch (2023-08-09); 50 distinct contract destinations; 20 active days in the last 30 days. Each component is linearly normalized and capped at 100. If a component cannot be calculated, the overall score remains unavailable rather than inventing data. Indexed histories can be sampled and may not cover every interaction. This is not an official Base rank or guarantee of rewards.
+Project files and instructions are provided as development artifacts. Report incorrect data rather than interpreting sampled numbers as a guaranteed wallet ranking.
