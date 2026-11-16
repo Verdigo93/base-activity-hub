@@ -15,7 +15,7 @@ export const CONFIG = {
   // This optional direct-pay address is used ONLY for the explicitly labelled voluntary tip.
   treasuryReceiver: "0x5F5d8B3Cf23368b9B5fab4e4A391A998803c292F", // Your public USDC fee receiver; baked into NFT/factory contract at deployment.
   tipReceiver: "0x5F5d8B3Cf23368b9B5fab4e4A391A998803c292F",
-  baseBuilderCode: "", // Register on base.dev; the app encodes its Schema-0 ERC-8021 suffix automatically.
+  baseBuilderCode: "bc_e5x8c1ku", // Register on base.dev; the app encodes its Schema-0 ERC-8021 suffix automatically.
   // NFT prices are checked against onchain mintPrice(tier) before USDC approval.
   deployPriceUsdc: 0.1,
   nftItems: [
