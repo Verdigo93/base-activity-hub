@@ -79,7 +79,7 @@ function setup(){
  overlay.addEventListener('click',e=>{if(e.target===overlay)overlay.classList.remove('show')});
  $('bshareOpen').onclick=()=>{
    const address=$('scoreAddress').value.trim()||state.address;
-   if(!/^0x[\da-f]{40}$/i.test(address)){alert('Connect wallet or enter an address and use Check activity first.');return;}
+   if(!/^0x[\da-f]{40}$/i.test(address)||address.toLowerCase()!==String(state.address).toLowerCase()){alert('Connect wallet or click Check activity for this address before sharing its statistics.');return;}
    summary=shareSummary(state.profile||{},address,state.chainId);png=makeCanvas(summary).toDataURL('image/png');
    $('bsharePreview').src=png;overlay.classList.add('show');
  };
