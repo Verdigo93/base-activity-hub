@@ -10,6 +10,8 @@
   <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml" />
   <link rel="stylesheet" href="/src/styles.css" />
   <link rel="stylesheet" href="/src/score-widget.css" />
+  <link rel="stylesheet" href="/src/theme.css" />
+  <script>try{const v=localStorage.getItem("bah:theme");document.documentElement.dataset.theme=v==="dark"||v==="light"?v:(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light")}catch{document.documentElement.dataset.theme="light"}</script>
   <title>Base Activity Hub — Onchain actions, simplified</title>
 </head>
 <body>
@@ -17,7 +19,7 @@
     <header class="topbar">
       <a class="brand" href="#home" aria-label="Base Activity Hub home"><span class="brand-mark"><span class="brand-stripe"></span></span><span><strong>Base Activity Hub</strong><small>Onchain actions · Activity · Analytics</small></span></a>
       <nav class="topnav" aria-label="Primary navigation"><a href="#home" class="nav-link active" data-nav="home"><span data-icon="house"></span><span data-i18n="navHome">Home</span></a><a href="#analytics" class="nav-link" data-nav="analytics"><span data-icon="chart"></span><span data-i18n="navAnalytics">Analytics</span></a><a href="#achievements" class="nav-link" data-nav="achievements"><span data-icon="trophy"></span><span data-i18n="navAchievements">Achievements</span></a></nav>
-      <div class="topcontrols"><button id="languageButton" class="lang-button" aria-label="Switch language">UA</button><select id="networkSelect" class="network-select" aria-label="Base network"><option value="8453">● Base Mainnet</option><option value="84532">◉ Base Sepolia</option></select><button id="connectButton" class="wallet-button"><span data-icon="wallet"></span><span id="walletButtonLabel">Connect wallet</span></button></div>
+      <div class="topcontrols"><button id="languageButton" class="lang-button" aria-label="Switch language">UA</button><button id="themeToggle" type="button" aria-label="Switch theme" title="Switch theme">☾ Dark</button><select id="networkSelect" class="network-select" aria-label="Base network"><option value="8453">● Base Mainnet</option><option value="84532">◉ Base Sepolia</option></select><button id="connectButton" class="wallet-button"><span data-icon="wallet"></span><span id="walletButtonLabel">Connect wallet</span></button></div>
     </header>
     <main class="page" id="home">
       <section class="hero"><div class="hero-copy"><span class="eyebrow"><span class="pulse-dot"></span> Built for Base explorers</span><h1>Grow your <span>Base</span> activity</h1><p>Do onchain actions, mint NFTs, deploy contracts and track your activity in one beautiful place.</p><div class="hero-tags"><span><span data-icon="zap"></span> Real onchain</span><span><span data-icon="shield"></span> Transparent fees</span><span><span data-icon="layers"></span> All in one</span></div></div><div class="hero-image" role="img" aria-label="Blue futuristic Base illustration"></div><div class="hero-glow"></div></section>
@@ -77,5 +79,6 @@
   <script type="module" src="/src/score-widget.mjs"></script>
   <script type="module" src="/src/app.js"></script>
   <script type="module" src="/src/share-card.mjs"></script>
+  <script type="module" src="/src/theme.mjs"></script>
 </body>
 </html>

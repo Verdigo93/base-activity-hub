@@ -1,0 +1,60 @@
+/* Dark theme follows site, score and share-card styles; light theme is unchanged. */
+#themeToggle{height:44px;display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:0 12px;border:1px solid #d6def7;border-radius:12px;background:#fff;color:#234ac4;font-size:12px;font-weight:800;white-space:nowrap;box-shadow:0 2px 6px rgba(23,68,153,.04)}
+#themeToggle:focus-visible{outline:3px solid #85a6ff;outline-offset:2px}
+html[data-theme="dark"]{color-scheme:dark;--bg:#090f1e;--panel:#131f34;--text:#f1f6ff;--muted:#a3b7da;--line:#2b3e63;--blue:#85adff;--blue2:#4e80ff;--blue-soft:#20375c;--shadow:0 10px 30px #02081770}
+html[data-theme="dark"] body{background:radial-gradient(circle at 75% 0%,#1a3154 0%,transparent 35%),var(--bg);color:var(--text)}
+html[data-theme="dark"] .topbar{background:#101a2ceb;border-bottom-color:#273656}
+html[data-theme="dark"] .brand small,html[data-theme="dark"] .eyebrow{color:#bed0f1}
+html[data-theme="dark"] .nav-link .ico{color:#bdc9de}
+html[data-theme="dark"] .nav-link.active{background:#1e3966;color:#e0ebff;box-shadow:none}
+html[data-theme="dark"] .nav-link.active .ico{color:#86b5ff}
+html[data-theme="dark"] :is(.lang-button,.network-select,.wallet-button,#themeToggle){background:#192841;color:#f0f5ff;border-color:#385277;box-shadow:none}
+html[data-theme="dark"] .wallet-button .ico{color:#84b0ff}
+html[data-theme="dark"] .hero{border-color:#344b78;background:linear-gradient(105deg,#172941 0%,#192d50 55%,#213b70 100%)}
+html[data-theme="dark"] .hero h1{color:#f4f7ff}
+html[data-theme="dark"] .hero h1 span{color:#83b5ff}
+html[data-theme="dark"] .hero p{color:#dae6ff}
+html[data-theme="dark"] .hero-image{opacity:.35}
+html[data-theme="dark"] .hero-tags span{background:#182e4bdc;color:#cfe2ff;border-color:#3f5c86}
+html[data-theme="dark"] .mode-notice{background:#142e4b;color:#cce0ff;border-color:#34557b}
+html[data-theme="dark"] .mode-notice button{color:#cbd9f1}
+html[data-theme="dark"] .panel,html[data-theme="dark"] :is(.modal,.bshare-dialog){background:#121d32!important;color:#f0f5ff!important;border-color:#2b4367!important;box-shadow:var(--shadow)}
+html[data-theme="dark"] :is(.metrics,.balance-card,.info-card,.modal-review,.score-stat,.bshare-mission,.bshare-bar,.bshare-dialog .bshare-buttons button.secondary){background:#1a2b46!important;border-color:#345075!important;color:#f1f6ff!important}
+html[data-theme="dark"] :is(.metric,.recent-row,.info-card hr){border-color:#33486b}
+html[data-theme="dark"] :is(.section-title p,.metric>span:last-child,.balance-item small,.info-card small,.source-label,.modal-description,.modal-warning,.review-row,.score-head p,.score-caption small,.score-stat span,.score-breakdown-heading,.score-disclaimer,.score-status,.score-controls label,.bshare-note,.bshare-bar p,.bshare-mission small,.achieve-caption,.safety-panel p,.calendar-note,footer){color:#b5c7e3!important}
+html[data-theme="dark"] :is(.section-title h2,.profile-head h2,.balance-card h3,.info-card strong,.balance-item strong,.metric b,.review-row strong,.score-head h2,.score-caption strong,.score-stat strong,.bshare-bar b,.bshare-mission b,.safety-panel strong,.modal-header h2,.bshare-dialog h2,.achievement strong){color:#f0f5ff!important}
+html[data-theme="dark"] .address-line{color:#bdd0eb}
+html[data-theme="dark"] .address-line>span{background:#2b3f5f;color:#e0ebff}
+html[data-theme="dark"] .status-badge{background:#103d35;color:#a1ffda}
+html[data-theme="dark"] .metric>.ico,html[data-theme="dark"] .title-icon{color:#94baff}
+html[data-theme="dark"] :is(.action-tile,.nft-item,.daily-task,.achievement,.recent-ic){background:#1a2b46!important;color:#eaf2ff!important;border-color:#355176!important;box-shadow:none!important}
+html[data-theme="dark"] .action-tile.primary{background:linear-gradient(135deg,#224580,#2c62b1)!important}
+html[data-theme="dark"] .action-tile h3{color:#f2f6ff}
+html[data-theme="dark"] .action-tile p{color:#bbcbeb}
+html[data-theme="dark"] .action-tile .tile-icon,html[data-theme="dark"] .tile-arrow{color:#91b9ff}
+html[data-theme="dark"] :is(.field,.form-field input,.form-field select,.form-field textarea,.score-controls input){background:#192a46!important;color:#f4f7ff!important;border-color:#44618b!important}
+html[data-theme="dark"] :is(.field,.form-field input,.form-field textarea,.score-controls input)::placeholder{color:#91a9d0}
+html[data-theme="dark"] .form-field{color:#dae6fd!important}
+html[data-theme="dark"] :is(.subtle-button,.close-button,.icon-button,.small-badge,.counter-pill){background:#203655!important;color:#deebff!important;border-color:#44618b!important}
+html[data-theme="dark"] :is(.price-note,.factory-benefits span,.daily-task small,.achievement small,.recent-row time,.calendar-stats small){color:#bacdef}
+html[data-theme="dark"] .price-tag{background:#104334;color:#a2f4cb}
+html[data-theme="dark"] .heat-cell{background:#283b58}
+html[data-theme="dark"] .heat-cell.level1{background:#335886}
+html[data-theme="dark"] .heat-cell.level2{background:#4178c7}
+html[data-theme="dark"] .heat-cell.level3{background:#5995f1}
+html[data-theme="dark"] .heat-cell.level4{background:#80b1ff}
+html[data-theme="dark"] :is(.score-network,.score-circle-core){background:#182c4d;color:#dbe8ff;border-color:#34527d}
+html[data-theme="dark"] .score-circle{background:conic-gradient(#6197ff var(--score-deg),#294262 var(--score-deg) 360deg)}
+html[data-theme="dark"] #scoreValue{color:#b8d0ff}
+html[data-theme="dark"] .score-circle-core small{color:#c3d2ec}
+html[data-theme="dark"] .score-breakdown-heading strong{color:#d7e5ff}
+html[data-theme="dark"] .score-meter,html[data-theme="dark"] .bshare-progress{background:#2b4367}
+html[data-theme="dark"] .bshare-mission b{color:#aed0ff}
+html[data-theme="dark"] .score-controls a{color:#a8c8ff}
+html[data-theme="dark"] .modal-backdrop,html[data-theme="dark"] .bshare-overlay{background:#010511cc!important}
+html[data-theme="dark"] .modal-feedback{background:#223e66;border-color:#395e90;color:#cfe4ff}
+html[data-theme="dark"] .modal-feedback.error{background:#4d2236;border-color:#a0475f;color:#ffcad3}
+html[data-theme="dark"] .bshare-overlay .bshare-dialog img{border-color:#40618c}
+html[data-theme="dark"] .bshare-dialog button.secondary{color:#dfebff!important}
+html[data-theme="dark"] .avatar{box-shadow:none}
+@media(max-width:560px){#themeToggle{padding:0 8px;font-size:11px}.topcontrols{gap:5px}html[data-theme="dark"] .wallet-button{padding:0 8px}}
