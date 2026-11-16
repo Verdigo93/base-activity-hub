@@ -65,8 +65,10 @@ test('Invalid method, chain, and legacy payment headers are rejected',async()=>{
  assert.equal((await run({method:'GET',headers:{'x-payment':'legacy'}})).status,400);
 });
 
-test('Signed payments do not settle by default',async()=>{
- const r=await run({method:'GET',headers:{'payment-signature':payment()}});
+test('Signed payments are blocked when settlement is explicitly disabled',async()=>{
+ // The production Render environment may set X402_MAINNET_ENABLED=true.
+ // This safety test must override it to guarantee no external payment calls.
+ const r=await run({method:'GET',headers:{'payment-signature':payment()}},{enabled:false});
  assert.equal(r.status,503);assert.equal(r.body.ok,undefined);
 });
 
