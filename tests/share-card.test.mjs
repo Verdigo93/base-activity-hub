@@ -6,7 +6,7 @@ test('share card identifies Sepolia',()=>{assert.equal(shareSummary({},'',84532)
 test('X composer prefilled with the preferred text and link',()=>{
  const sample={score:'81',transactions:'7,645',age:'1,155',recent:'4',partial:false};
  const text=postText(sample),url=new URL(xIntentUrl(sample));
- assert.equal(text.split('\\n')[0],'I checked my Base wallet on Base Activity Hub.');
+ assert.equal(text.split('\n')[0],'I checked my Base wallet on Base Activity Hub.');
  assert.match(text,/81\/100 activity score/);assert.match(text,/7,645 transactions/);
  assert.match(text,/1,155 days on Base/);assert.match(text,/4 active days in the last 30 days/);
  assert.match(text,/https:\/\/base-activity-hub.onrender.com\//);
