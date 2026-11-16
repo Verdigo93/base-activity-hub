@@ -37,7 +37,14 @@ function makeCanvas(p){
   txt(c,p.partial?'Independent estimate · Some stats are incomplete':'Independent estimate · Not official Base ranking',650,610,14,'#7381a1',false);
   return canvas;
 }
-function postText(s){return 'My Base activity: '+s.transactions+' transactions on '+s.network+' 🔵\nCheck your wallet and explore onchain actions with Base Activity Hub.\n'+SITE;}
+export function postText(s){
+ const scoreLine=s.score==='—'?'Activity score: unavailable':s.score+'/100 activity score'+(s.partial?' (estimated)':'');
+ const txLine=s.transactions==='—'?'Transactions: unavailable':s.transactions+' transactions';
+ const ageLine=s.age==='—'?'Days on Base: unavailable':s.age+' days on Base';
+ const daysLine=s.recent==='—'?'Active days (last 30 days): unavailable':s.recent+' active days in the last 30 days';
+ return 'I checked my Base wallet on Base Activity Hub.\n\n'+scoreLine+'\n'+txLine+'\n'+ageLine+'\n'+daysLine+'\n\nCheck your wallet and grow your Base activity:\n'+SITE;
+}
+export function xIntentUrl(s){return 'https://x.com/intent/post?text='+encodeURIComponent(postText(s));}
 function nextTarget(v,targets){return targets.find(x=>x>Number(v))||targets[targets.length-1];}
 let state={profile:null,address:'',chainId:8453},png='',summary=null;
 function drawMissions(){
@@ -73,7 +80,7 @@ function setup(){
  const missions=document.createElement('div');missions.innerHTML='<b style="font-size:13px;color:#1b2b55">🎯 Next Milestones</b><div class="bshare-missions" id="shareMilestones"></div><small class="bshare-note">Independent goals, not official Base rewards. Sampled data may be incomplete.</small>';
  bar.after(missions);
  const overlay=document.createElement('div');overlay.id='bshareOverlay';overlay.className='bshare-overlay';
- overlay.innerHTML='<div class="bshare-dialog" role="dialog" aria-modal="true" aria-label="Base share card"><button class="secondary" id="bshareClose" style="float:right">×</button><h2>My Base activity card</h2><p class="bshare-note">Personal wallet stats, generated in your browser — no signature required.</p><img id="bsharePreview" alt="Base activity share image"><div class="bshare-buttons"><button class="secondary" id="bshareDownload">Download PNG</button><button id="bsharePost">Share to X ↗</button><button class="secondary" id="bshareCopy">Copy text</button></div><p class="bshare-note" id="bshareHint">On desktop, attach the PNG in the X composer before posting.</p></div>';
+ overlay.innerHTML='<div class="bshare-dialog" role="dialog" aria-modal="true" aria-label="Base share card"><button class="secondary" id="bshareClose" style="float:right">×</button><h2>My Base activity card</h2><p class="bshare-note">Personal wallet stats, generated in your browser — no signature required.</p><img id="bsharePreview" alt="Base activity share image"><div class="bshare-buttons"><button class="secondary" id="bshareDownload">Download PNG</button><button id="bsharePost">Share to X ↗</button><button class="secondary" id="bshareCopy">Copy text</button></div><p class="bshare-note" id="bshareHint">Share to X opens a ready-to-post message; download PNG separately to attach an image.</p></div>';
  document.body.append(overlay);
  $('bshareClose').onclick=()=>overlay.classList.remove('show');
  overlay.addEventListener('click',e=>{if(e.target===overlay)overlay.classList.remove('show')});
@@ -85,14 +92,11 @@ function setup(){
  };
  $('bshareDownload').onclick=download;
  $('bshareCopy').onclick=async()=>{if(!summary)return;try{await navigator.clipboard.writeText(postText(summary));$('bshareCopy').textContent='Copied ✓'}catch{$('bshareHint').textContent=postText(summary)}};
- $('bsharePost').onclick=async()=>{
+ $('bsharePost').onclick=()=>{
    if(!summary)return;
-   if(navigator.share&&navigator.canShare){try{
-     const blob=await(await fetch(png)).blob(),file=new File([blob],'base-activity.png',{type:'image/png'});
-     if(navigator.canShare({files:[file]})){await navigator.share({files:[file],text:postText(summary),title:'My Base Activity'});return;}
-   }catch(e){if(e.name==='AbortError')return;}}
-   download();window.open('https://twitter.com/intent/tweet?text='+encodeURIComponent(postText(summary)),'_blank','noopener,noreferrer');
-   $('bshareHint').textContent='Downloaded base-activity.png. Attach it to the prefilled post on X before publishing.';
+   // Synchronous click opens the X composer; PNG remains optional and separately downloadable.
+   window.open(xIntentUrl(summary),'_blank','noopener,noreferrer');
+   $('bshareHint').textContent='X opens with a ready-to-post message. Use Download PNG if you wish to attach the image.';
  };
  drawMissions();
 }

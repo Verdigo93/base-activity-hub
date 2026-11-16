@@ -33,7 +33,6 @@
           <div class="score-stat"><strong id="scoreAge">—</strong><span>Wallet age · days</span></div>
           <div class="score-stat"><strong id="scoreApps">—</strong><span>Contract destinations*</span></div>
           <div class="score-stat"><strong id="scoreActive">—</strong><span>Active days · 30d</span></div>
-          <div class="score-stat"><strong id="scoreGas">—</strong><span>Gas spent · ETH</span></div>
         </div>
         <div class="score-controls"><label for="scoreAddress">Check any wallet</label><input id="scoreAddress" placeholder="0x..." inputmode="text" spellcheck="false" maxlength="42" autocomplete="off" aria-label="Wallet address to check"/><button id="scoreSearch" type="button">Check activity</button><a href="https://alphadrops.net/checker/base-score" target="_blank" rel="noopener noreferrer">Compare with Alpha Drops ↗</a></div>
         <p class="score-status" id="scoreStatus" role="status" aria-live="polite"></p><p id="scoreDisclaimer" class="score-disclaimer">*Distinct contract call destinations, not verified app count. Independent scoring; not an official Base or Alpha Drops ranking.</p>
@@ -50,7 +49,7 @@
             <div class="metric"><span data-icon="layers"></span><b id="statUnique">12</b><span data-i18n="uniqueContracts">Unique contracts</span></div>
           </div>
           <section class="balance-card"><h3 data-i18n="balances">Balances (Base)</h3><div class="balance-item"><div class="coin eth">◆</div><strong id="balanceEth">0.0423 ETH</strong><small id="balanceEthUSD">Demo</small></div><div class="balance-item"><div class="coin usdc">$</div><strong id="balanceUsdc">12.50 USDC</strong><small id="balanceUsdcUSD">Demo</small></div></section>
-          <section class="info-card"><div><span data-icon="calendar"></span><p><small data-i18n="firstTransaction">First transaction</small><strong id="firstTransaction">Apr 12, 2024</strong></p></div><hr/><div><span data-icon="fuel"></span><p><small data-i18n="totalGas">Total gas spent</small><strong id="totalGas">0.0187 ETH</strong></p></div></section>
+          <section class="info-card"><div><span data-icon="calendar"></span><p><small data-i18n="firstTransaction">First transaction</small><strong id="firstTransaction">Apr 12, 2024</strong></p></div></section>
           <button id="refreshButton" class="subtle-button full"><span data-icon="refresh"></span><span data-i18n="refreshData">Refresh profile</span></button><p class="source-label" id="profileSource">Preview statistics · not live</p>
         </aside>
         <section class="center-stack">

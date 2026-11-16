@@ -3,8 +3,7 @@ export const SCORE_RULES = Object.freeze([
   {key:'transactions', max:30, target:100, label:'Transactions', ua:'Транзакції'},
   {key:'daysOnBase', max:20, target:365, label:'Wallet age', ua:'Вік гаманця'},
   {key:'uniqueContracts', max:25, target:25, label:'Contract diversity*', ua:'Різні контракти*'},
-  {key:'recentActiveDays', max:15, target:10, label:'Recent active days', ua:'Активні дні за 30 днів'},
-  {key:'gasEth', max:10, target:.01, label:'Gas contributed (ETH)', ua:'Витрачений gas (ETH)'},
+  {key:'recentActiveDays', max:25, target:10, label:'Recent active days', ua:'Активні дні за 30 днів'},
 ]);
 
 export function calculateBaseScore(profile, now=Date.now()) {
@@ -12,11 +11,8 @@ export function calculateBaseScore(profile, now=Date.now()) {
   const today=new Date(now).toISOString().slice(0,10);
   const recentActiveDays=['etherscan','alchemy'].includes(profile?.source) && Array.isArray(profile?.activityDays)
     ? profile.activityDays.filter(d => d?.day>=recentBoundary && d.day<=today && Number(d.count)>0).length : null;
-  const gasRaw=profile?.totalGasWei ?? profile?.sampleGasWei ?? null;
-  let gasEth=null;
-  if(gasRaw!==null){try{gasEth=Number(BigInt(gasRaw))/1e18;}catch{gasEth=null;}}
   const values={transactions:profile?.transactions??null,daysOnBase:profile?.daysOnBase??null,
-    uniqueContracts:profile?.uniqueContracts??null,recentActiveDays,gasEth};
+    uniqueContracts:profile?.uniqueContracts??null,recentActiveDays};
   const breakdown=SCORE_RULES.map(r=>{
     const raw=values[r.key];const valid=raw!==null&&Number.isFinite(Number(raw))&&Number(raw)>=0;
     const value=valid?Number(raw):null;
@@ -45,7 +41,7 @@ if(typeof document!=='undefined'){
     const available=result.availableCategories;
     $('scoreValue').textContent=result.score===null?'—':String(result.score);
     $('scoreRing').style.setProperty('--score-deg',result.score===null?'0deg':`${result.score*3.6}deg`);
-    $('scoreConfidence').textContent=result.score===null?t(`${available}/5 data sources available`,`${available}/5 показників доступно`):
+    $('scoreConfidence').textContent=result.score===null?t(`${available}/4 data sources available`,`${available}/4 показників доступно`):
       result.partial?t('Estimated from a limited sample','Оцінка за неповними даними'):t('Unofficial activity estimate','Неофіційна оцінка активності');
     const rows=$('scoreRows');rows.innerHTML='';
     for(const entry of result.breakdown){
@@ -63,9 +59,8 @@ if(typeof document!=='undefined'){
     }
     $('scoreNetwork').textContent=selectedChain===84532?'Base Sepolia':'Base Mainnet';
     const stats=[['scoreTx',profile?.transactions],['scoreAge',profile?.daysOnBase],['scoreApps',profile?.uniqueContracts],
-      ['scoreActive',result.breakdown.find(x=>x.key==='recentActiveDays')?.value],
-      ['scoreGas',result.breakdown.find(x=>x.key==='gasEth')?.value]];
-    for(const [id,val] of stats)$(id).textContent=val==null?'—':number(val,id==='scoreGas'?5:0);
+      ['scoreActive',result.breakdown.find(x=>x.key==='recentActiveDays')?.value]];
+    for(const [id,val] of stats)$(id).textContent=val==null?'—':number(val);
     const limited=result.partial;
     const label=language()==='ua'
       ? limited?'*Різні адреси контрактних викликів у доступній вибірці — не кількість застосунків. Дані можуть бути неповними.':'*Оцінка різних адрес контрактних викликів, не кількості застосунків.'
