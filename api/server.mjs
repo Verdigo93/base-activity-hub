@@ -6,7 +6,7 @@ import {existsSync, createReadStream} from 'node:fs';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {handleX402} from './x402.mjs';
-import {handleMainnetX402Challenge} from './x402-mainnet.mjs';
+import {handleMainnetX402Challenge,checkMainnetFacilitator} from './x402-mainnet.mjs';
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const envPath=path.join(root,'.env');
 if(existsSync(envPath)){
@@ -70,6 +70,24 @@ async function duneRows(address){if(!duneKey||!duneQuery)throw Error('Dune integ
 const server=http.createServer(async(req,res)=>{
   try{
     const url=new URL(req.url,`http://${req.headers.host||'localhost'}`);
+    if(url.pathname==='/api/x402/status'){
+      // Public, read-only health probe; no payment signing, settlement or wallet data.
+      if(req.method!=='GET')return respond(res,405,{error:'Only GET is supported.'});
+      const cached=cache.get('x402:facilitator');
+      if(cached&&Date.now()<cached.until)return respond(res,cached.status,cached.data);
+      let status,data;
+      try{
+        data=await checkMainnetFacilitator();
+        status=data.facilitatorSupported?200:503;
+      }catch{
+        status=503;
+        data={x402Version:2,network:'eip155:8453',scheme:'exact',
+          facilitatorSupported:false,settlementEnabled:process.env.X402_MAINNET_ENABLED==='true',
+          error:'Facilitator status temporarily unavailable'};
+      }
+      cache.set('x402:facilitator',{until:Date.now()+30000,status,data});
+      return respond(res,status,data);
+    }
     if(url.pathname==='/api/x402/report')return await handleMainnetX402Challenge(req,res,url,profile);
     if(url.pathname==='/api/health')return respond(res,200,{ok:true,etherscanConfigured:Boolean(apiKey),alchemyConfigured:Boolean(alchemyKey),duneConfigured:Boolean(duneKey&&duneQuery)});
     if(url.pathname==='/api/profile'){
