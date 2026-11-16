@@ -16,11 +16,11 @@ export const CONFIG = {
   treasuryReceiver: "0x5F5d8B3Cf23368b9B5fab4e4A391A998803c292F", // Your public USDC fee receiver; baked into NFT/factory contract at deployment.
   tipReceiver: "0x5F5d8B3Cf23368b9B5fab4e4A391A998803c292F",
   baseBuilderCode: "", // Register on base.dev; the app encodes its Schema-0 ERC-8021 suffix automatically.
-  nftPriceUsdc: 0.1,
+  // NFT prices are checked against onchain mintPrice(tier) before USDC approval.
   deployPriceUsdc: 0.1,
   nftItems: [
-    { id: 0, name: "Base Genesis", image: "/assets/genesis.png" },
-    { id: 1, name: "Base Explorer", image: "/assets/explorer.png" },
-    { id: 2, name: "Base Diamond", image: "/assets/diamond.png" },
+    { id: 0, name: "Base Genesis", rarity: "Common", image: "/assets/genesis.jpg", priceUsdc: "0.10", priceUnits: 100000, maxSupply: 10000 },
+    { id: 1, name: "Base Ember", rarity: "Rare", image: "/assets/ember.jpg", priceUsdc: "0.50", priceUnits: 500000, maxSupply: 1000 },
+    { id: 2, name: "Base Crown", rarity: "Legendary", image: "/assets/crown.jpg", priceUsdc: "1.00", priceUnits: 1000000, maxSupply: 100 },
   ],
 };

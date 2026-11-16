@@ -10,9 +10,9 @@ test('Mainnet paid actions explain deployment and never link to Sepolia setup',(
  assert.match(app,/The x402 Mainnet integration is not live yet/);
 });
 test('all three minted NFT types have valid live-domain metadata references',()=>{
- for(const artwork of ['genesis','explorer','diamond']){
+ for(const artwork of ['genesis','ember','crown']){
   const m=JSON.parse(read('metadata/'+artwork+'.json'));
-  assert.equal(m.image,'https://base-activity-hub.onrender.com/assets/'+artwork+'.png');
+  assert.equal(m.image,'https://base-activity-hub.onrender.com/assets/'+artwork+'.jpg');
   assert.doesNotMatch(JSON.stringify(m),/REPLACE-YOUR-DOMAIN/);
  }
 });

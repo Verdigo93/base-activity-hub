@@ -1,0 +1,24 @@
+{
+  "name": "Base Ember — Rare",
+  "description": "Rare tier in Base Activity Originals, an independent ERC-721 collectible on Base Mainnet. Not affiliated with Base or Coinbase.",
+  "image": "https://base-activity-hub.onrender.com/assets/ember.jpg",
+  "external_url": "https://base-activity-hub.onrender.com/",
+  "attributes": [
+    {
+      "trait_type": "Rarity",
+      "value": "Rare"
+    },
+    {
+      "trait_type": "Theme",
+      "value": "Ruby Red"
+    },
+    {
+      "trait_type": "Tier",
+      "value": 2
+    },
+    {
+      "trait_type": "Max Supply",
+      "value": 1000
+    }
+  ]
+}

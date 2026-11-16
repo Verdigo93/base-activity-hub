@@ -1,0 +1,24 @@
+{
+  "name": "Base Crown — Legendary",
+  "description": "Legendary tier in Base Activity Originals, an independent ERC-721 collectible on Base Mainnet. Not affiliated with Base or Coinbase.",
+  "image": "https://base-activity-hub.onrender.com/assets/crown.jpg",
+  "external_url": "https://base-activity-hub.onrender.com/",
+  "attributes": [
+    {
+      "trait_type": "Rarity",
+      "value": "Legendary"
+    },
+    {
+      "trait_type": "Theme",
+      "value": "Gold"
+    },
+    {
+      "trait_type": "Tier",
+      "value": 3
+    },
+    {
+      "trait_type": "Max Supply",
+      "value": 100
+    }
+  ]
+}

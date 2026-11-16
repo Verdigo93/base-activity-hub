@@ -1,1 +1,24 @@
-{"name":"Base Genesis","description":"A Base Activity Hub original collectible. Independent community artwork, not an official Base NFT.","image":"https://base-activity-hub.onrender.com/assets/genesis.png","attributes":[{"trait_type":"Series","value":"Genesis"}]}
+{
+  "name": "Base Genesis — Common",
+  "description": "Common tier in Base Activity Originals, an independent ERC-721 collectible on Base Mainnet. Not affiliated with Base or Coinbase.",
+  "image": "https://base-activity-hub.onrender.com/assets/genesis.jpg",
+  "external_url": "https://base-activity-hub.onrender.com/",
+  "attributes": [
+    {
+      "trait_type": "Rarity",
+      "value": "Common"
+    },
+    {
+      "trait_type": "Theme",
+      "value": "Blue"
+    },
+    {
+      "trait_type": "Tier",
+      "value": 1
+    },
+    {
+      "trait_type": "Max Supply",
+      "value": 10000
+    }
+  ]
+}
