@@ -9,7 +9,7 @@ export function shareSummary(profile={},address='',chainId=8453,now=Date.now()){
   const since=new Date(now-29*86400000).toISOString().slice(0,10);
   const recent=Array.isArray(profile.activityDays)&&['alchemy','etherscan'].includes(profile.source)
     ?profile.activityDays.filter(x=>x.day>=since&&Number(x.count)>0).length:null;
-  return {address:addr(address),network:chainId===84532?'Base Sepolia':'Base Mainnet',
+  return {address:addr(address),network:'Base Mainnet',
     transactions:number(profile.transactions),age:number(profile.daysOnBase),recent:number(recent),
     contracts:number(profile.uniqueContracts),score:score.score==null?'—':String(score.score),partial:score.partial};
 }

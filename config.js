@@ -9,11 +9,7 @@ export const CONFIG = {
       // Deployed by the project owner on Base Mainnet. The UI checks bytecode and read methods before sending GM/check-in/message calls.
       activityBoard: "0x050A046E37947bb8DAF2b2A1a3C00c191EB92942", nftContract: "", factoryContract: "",
     },
-    84532: {
-      name: "Base Sepolia", rpcUrl: "https://sepolia.base.org", explorer: "https://sepolia.basescan.org",
-      // Circle official USDC on Base Sepolia (test tokens have no monetary value).
-      usdc: "0x036CbD53842c5426634e7929541eC2318f3dCF7e", activityBoard: "", nftContract: "", factoryContract: "",
-    },
+
   },
   // Treasury is configured INSIDE NFT and factory contracts at deployment time.
   // This optional direct-pay address is used ONLY for the explicitly labelled voluntary tip.

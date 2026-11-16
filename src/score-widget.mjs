@@ -30,8 +30,8 @@ if(typeof document!=='undefined'){
   const $=id=>document.getElementById(id);
   const scoreStatus=$('scoreStatus'),scoreInput=$('scoreAddress'),scoreGo=$('scoreSearch');
   let selectedChain=8453,lastConnected=null,requestId=0;
-  let language=()=>localStorage.getItem('bah:language')==='ua'?'ua':'en';
-  const t=(en,ua)=>language()==='ua'?ua:en;
+  const language=()=> 'en';
+  const t=(en,ua)=>en;
   const addressOk=s=>/^0x[0-9a-fA-F]{40}$/.test(s||'');
   const number=(n,digits=0)=>Number(n).toLocaleString(language()==='ua'?'uk-UA':'en-US',{maximumFractionDigits:digits});
   function setStatus(msg,kind='normal'){scoreStatus.textContent=msg;scoreStatus.dataset.kind=kind;}
@@ -57,7 +57,7 @@ if(typeof document!=='undefined'){
       track.append(bar);
       row.append(heading,track);rows.append(row);
     }
-    $('scoreNetwork').textContent=selectedChain===84532?'Base Sepolia':'Base Mainnet';
+    $('scoreNetwork').textContent='Base Mainnet';
     const stats=[['scoreTx',profile?.transactions],['scoreAge',profile?.daysOnBase],['scoreApps',profile?.uniqueContracts],
       ['scoreActive',result.breakdown.find(x=>x.key==='recentActiveDays')?.value]];
     for(const [id,val] of stats)$(id).textContent=val==null?'—':number(val);
@@ -90,16 +90,16 @@ if(typeof document!=='undefined'){
   }
   window.addEventListener('bah:profile',event=>{
     const {account,chainId,profile}=event.detail||{};if(!account||!addressOk(account))return;
-    selectedChain=Number(chainId)||8453;lastConnected=account;
+    selectedChain=8453;lastConnected=account;
     scoreInput.value=account;paint(profile);
   });
   $('networkSelect').addEventListener('change',event=>{
     selectedChain=Number(event.target.value)||8453;++requestId;
-    $('scoreNetwork').textContent=selectedChain===84532?'Base Sepolia':'Base Mainnet';
+    $('scoreNetwork').textContent='Base Mainnet';
     const a=scoreInput.value.trim();if(addressOk(a))checkAddress(a);else reset();
   });
   scoreGo.addEventListener('click',()=>checkAddress(scoreInput.value.trim()));
   scoreInput.addEventListener('keydown',e=>{if(e.key==='Enter')checkAddress(scoreInput.value.trim())});
   $('languageButton').addEventListener('click',()=>{const a=scoreInput.value.trim();if(addressOk(a))checkAddress(a);else reset()});
-  $('scoreNetwork').textContent=selectedChain===84532?'Base Sepolia':'Base Mainnet';reset();
+  $('scoreNetwork').textContent='Base Mainnet';reset();
 }
