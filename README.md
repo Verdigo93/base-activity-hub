@@ -114,3 +114,7 @@ The **Base Dashboard is an app registration / attribution service, not a web-hos
 - External swaps are sent to the official Uniswap website, not an unknown embedded contract.
 - Wallet profile values that cannot be established are shown as unavailable, not fabricated.
 - NFT art/brand is community-made and explicitly not affiliated with Base or Coinbase.
+
+## Wallet activity rating (independent 0–100 metric)
+
+Every component displays **a score from 0 to 100**. The overall score is **round(Transactions × 0.30 + Wallet age × 0.25 + Contract destinations × 0.25 + Active days × 0.20)**. Full marks: 3,000 outgoing transactions; earliest observed activity since Base public launch (2023-08-09); 50 distinct contract destinations; 20 active days in the last 30 days. Each component is linearly normalized and capped at 100. If a component cannot be calculated, the overall score remains unavailable rather than inventing data. Indexed histories can be sampled and may not cover every interaction. This is not an official Base rank or guarantee of rewards.

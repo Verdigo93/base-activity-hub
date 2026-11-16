@@ -1,29 +1,28 @@
-/** Base Activity Score — a transparent community estimate, NOT Alpha Drops or an official Base ranking. */
-export const SCORE_RULES = Object.freeze([
-  {key:'transactions', max:30, target:100, label:'Transactions', ua:'Транзакції'},
-  {key:'daysOnBase', max:20, target:365, label:'Wallet age', ua:'Вік гаманця'},
-  {key:'uniqueContracts', max:25, target:25, label:'Contract diversity*', ua:'Різні контракти*'},
-  {key:'recentActiveDays', max:25, target:10, label:'Recent active days', ua:'Активні дні за 30 днів'},
+/** Base Activity Hub independent scoring system. Four 0–100 metrics with a weighted /100 result. */
+export const BASE_PUBLIC_LAUNCH_MS=Date.parse('2023-08-09T00:00:00Z');
+export const SCORE_RULES=Object.freeze([
+ {key:'transactions',weight:30,max:100,target:3000,label:'Transactions',ua:'Транзакції'},
+ {key:'daysOnBase',weight:25,max:100,target:'launch',label:'Wallet age',ua:'Вік гаманця'},
+ {key:'uniqueContracts',weight:25,max:100,target:50,label:'Contract destinations*',ua:'Різні контракти*'},
+ {key:'recentActiveDays',weight:20,max:100,target:20,label:'Recent active days',ua:'Активні дні за 30 днів'}
 ]);
-
-export function calculateBaseScore(profile, now=Date.now()) {
-  const recentBoundary=new Date(now-29*86400000).toISOString().slice(0,10);
-  const today=new Date(now).toISOString().slice(0,10);
-  const recentActiveDays=['etherscan','alchemy'].includes(profile?.source) && Array.isArray(profile?.activityDays)
-    ? profile.activityDays.filter(d => d?.day>=recentBoundary && d.day<=today && Number(d.count)>0).length : null;
-  const values={transactions:profile?.transactions??null,daysOnBase:profile?.daysOnBase??null,
-    uniqueContracts:profile?.uniqueContracts??null,recentActiveDays};
-  const breakdown=SCORE_RULES.map(r=>{
-    const raw=values[r.key];const valid=raw!==null&&Number.isFinite(Number(raw))&&Number(raw)>=0;
-    const value=valid?Number(raw):null;
-    const points=valid?Math.round(Math.min(1,value/r.target)*r.max*10)/10:null;
-    return {...r,value,points};
-  });
-  const available=breakdown.filter(r=>r.points!==null);
-  const complete=available.length===SCORE_RULES.length;
-  return {breakdown,score:complete?Math.round(available.reduce((sum,r)=>sum+r.points,0)):null,
-    availableCategories:available.length,partial:profile?.historyPartial===true || !['etherscan','alchemy'].includes(profile?.source),
-    source:profile?.source||'unknown'};
+export function launchDays(now=Date.now()){return Math.max(1,Math.floor((now-BASE_PUBLIC_LAUNCH_MS)/86400000)+1)}
+export function calculateBaseScore(profile,now=Date.now()){
+ const since=new Date(now-29*86400000).toISOString().slice(0,10),today=new Date(now).toISOString().slice(0,10);
+ const recentActiveDays=['etherscan','alchemy'].includes(profile?.source)&&Array.isArray(profile?.activityDays)
+  ?new Set(profile.activityDays.filter(d=>d?.day>=since&&d.day<=today&&Number(d.count)>0).map(d=>d.day)).size:null;
+ const values={transactions:profile?.transactions??null,daysOnBase:profile?.daysOnBase??null,
+  uniqueContracts:profile?.uniqueContracts??null,recentActiveDays};
+ const breakdown=SCORE_RULES.map(rule=>{
+  const raw=values[rule.key],valid=raw!==null&&Number.isFinite(Number(raw))&&Number(raw)>=0;
+  const value=valid?Number(raw):null,target=rule.target==='launch'?launchDays(now):rule.target;
+  const points=value===null?null:Math.round(Math.min(1,value/target)*100);
+  return {...rule,target,value,points,weightedPoints:points===null?null:points*rule.weight/100};
+ });
+ const available=breakdown.filter(r=>r.points!==null),complete=available.length===SCORE_RULES.length;
+ return {breakdown,score:complete?Math.round(available.reduce((a,r)=>a+r.weightedPoints,0)):null,
+  availableCategories:available.length,partial:profile?.historyPartial===true||!['etherscan','alchemy'].includes(profile?.source),
+  source:profile?.source||'unknown'};
 }
 
 if(typeof document!=='undefined'){
@@ -47,8 +46,8 @@ if(typeof document!=='undefined'){
     for(const entry of result.breakdown){
       const row=document.createElement('div');row.className='score-breakdown-row';
       const heading=document.createElement('div');heading.className='score-breakdown-heading';
-      const label=document.createElement('span');label.textContent=language()==='ua'?entry.ua:entry.label;
-      const points=document.createElement('strong');points.textContent=entry.points===null?`— / ${entry.max}`:`${number(entry.points,1)} / ${entry.max}`;
+      const label=document.createElement('span');label.textContent=entry.label+' · '+entry.weight+'% weight';
+      const points=document.createElement('strong');points.textContent=entry.points===null?'— / 100':`${number(entry.points)} / 100`;
       heading.append(label,points);
       const track=document.createElement('div');track.className='score-meter';track.setAttribute('role','progressbar');
       track.setAttribute('aria-label',label.textContent);track.setAttribute('aria-valuemin','0');track.setAttribute('aria-valuemax',String(entry.max));
