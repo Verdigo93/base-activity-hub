@@ -81,6 +81,14 @@ async function facilitatorSupported(fetchImpl){
   return Array.isArray(data.kinds)&&data.kinds.some(x=>x.x402Version===2&&x.scheme==='exact'&&x.network===MAINNET_X402.network);
 }
 
+export async function checkMainnetFacilitator(fetchImpl=fetch){
+  const supported=await facilitatorSupported(fetchImpl);
+  return {x402Version:2,network:MAINNET_X402.network,scheme:'exact',
+    facilitatorSupported:supported,
+    settlementEnabled:process.env.X402_MAINNET_ENABLED==='true'};
+}
+
+
 export async function handleMainnetX402Challenge(req,res,url,getReport,options={}){
   if(req.method!=='GET'){respond(res,405,{error:'Only GET is supported.'},{Allow:'GET'});return}
   const wallet=url.searchParams.get('address')||'';
