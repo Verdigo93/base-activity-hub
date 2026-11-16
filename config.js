@@ -7,7 +7,7 @@ export const CONFIG = {
       name: "Base Mainnet", rpcUrl: "https://mainnet.base.org", explorer: "https://basescan.org",
       usdc: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
       // Deployed by the project owner on Base Mainnet. The UI checks bytecode and read methods before sending GM/check-in/message calls.
-      activityBoard: "0x050A046E37947bb8DAF2b2A1a3C00c191EB92942", nftContract: "0xFBec66a66F3fdEb4675F2035CB5B7B6a6A536e9d", factoryContract: "",
+      activityBoard: "0x050A046E37947bb8DAF2b2A1a3C00c191EB92942", nftContract: "0xFBec66a66F3fdEb4675F2035CB5B7B6a6A536e9d", factoryContract: "0x1e5793564796bbFE242f7b161563c2A4C19193ed",
     },
 
   },
