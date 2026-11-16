@@ -92,8 +92,14 @@ export async function handleMainnetX402Challenge(req,res,url,getReport,options={
     respond(res,400,{error:'Legacy X-PAYMENT is not supported. Use x402 v2 PAYMENT-SIGNATURE.'});return
   }
   const raw=req.headers['payment-signature'];
-  if(!raw){requirePayment(res,challenge);return}
-  if(!(options.enabled??(process.env.X402_MAINNET_ENABLED==='true'))){
+  const enabled=options.enabled??(process.env.X402_MAINNET_ENABLED==='true');
+  if(!raw){
+    requirePayment(res,challenge,enabled?
+      'Payment required: 0.01 USDC on Base Mainnet.':
+      'Payment required: 0.01 USDC on Base Mainnet. Settlement is not enabled yet.');
+    return;
+  }
+  if(!enabled){
     respond(res,503,{error:'x402 Mainnet payment settlement is not enabled yet. No payment was submitted.'});return
   }
   let signed;
