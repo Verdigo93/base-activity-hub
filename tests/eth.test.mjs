@@ -25,6 +25,7 @@ test('units and strict validation',()=>{
 });
 
 test('ERC-8021 schema-0 Builder Code attribution matches ox format',()=>{
- assert.equal(builderCodeSuffix('baseapp'),'0x076261736561707000'+'8021'.repeat(8));
+ assert.equal(builderCodeSuffix('baseapp'),'0x626173656170700700'+'8021'.repeat(8));
+ assert.equal(builderCodeSuffix('bc_e5x8c1ku'),'0x62635f6535783863316b750b00'+'8021'.repeat(8));
  assert.throws(()=>builderCodeSuffix('in valid'));
 });
