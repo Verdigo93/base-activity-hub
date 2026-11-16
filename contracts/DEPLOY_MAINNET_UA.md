@@ -41,8 +41,8 @@
 
 Спочатку перевір, що ці метадані повертають JSON з реальними HTTPS-адресами зображень:
 - https://base-activity-hub.onrender.com/metadata/genesis.json
-- https://base-activity-hub.onrender.com/metadata/explorer.json
-- https://base-activity-hub.onrender.com/metadata/diamond.json
+- https://base-activity-hub.onrender.com/metadata/ember.json
+- https://base-activity-hub.onrender.com/metadata/crown.json
 
 Вибери в Remix `BaseActivityNFT`. Конструктор має **три параметри**:
 - `usdcToken` = `0x833589fCD6EDB6E08f4c7C32D4f71b54bdA02913`
@@ -52,12 +52,12 @@
 ```json
 [
   "https://base-activity-hub.onrender.com/metadata/genesis.json",
-  "https://base-activity-hub.onrender.com/metadata/explorer.json",
-  "https://base-activity-hub.onrender.com/metadata/diamond.json"
+  "https://base-activity-hub.onrender.com/metadata/ember.json",
+  "https://base-activity-hub.onrender.com/metadata/crown.json"
 ]
 ```
 
-У Remix для `string[3]` у відповідне поле встав цей JSON-масив одним рядком, із трьома рядками в тому ж порядку. `Value` = `0`. Перш ніж підтверджувати реальний деплой, переглянь gas і повну адресу гаманця. Після успішного деплою перевір `usdc()`, `treasury()`, `MINT_FEE()` та хоча б один пробний мінт із власного гаманця за реальні `0.10 USDC + gas`.
+У Remix для `string[3]` у відповідне поле встав цей JSON-масив одним рядком, із трьома рядками в тому ж порядку. `Value` = `0`. Перш ніж підтверджувати реальний деплой, переглянь gas і повну адресу гаманця. Після успішного деплою перевір `usdc()`, `treasury()`, `mintPrice(0/1/2)`, `tierMaxSupply(0/1/2)`, `mintedPerTier(0/1/2)` і хоча б один пробний мінт після перевірки метаданих. Ціни становлять 0.10 / 0.50 / 1.00 USDC відповідно до рівня.
 
 > NFT-конструктор записує `artworkUris` назавжди для цієї версії контракту. Не розгортай його з несправними метаданими.
 
@@ -72,3 +72,13 @@
 Сайт під час платних операцій має перевіряти правильні `treasury()`, `usdc()` і `0.10 USDC` до `approve`. Не дозволяй сайту переводити кошти на іншу адресу. `x402` залишається окремим наступним завданням.
 
 Контракти з відкритим кодом: https://github.com/Verdigo93/base-activity-hub/blob/main/contracts/BaseActivity.sol
+
+## Оновлені NFT — саме для Base Mainnet
+
+| Рівень | Назва | Ціна | Максимальний тираж |
+|---|---|---|---|
+| 0 | Base Genesis / Common | 0.10 USDC | 10 000 |
+| 1 | Base Ember / Rare | 0.50 USDC | 1 000 |
+| 2 | Base Crown / Legendary | 1.00 USDC | 100 |
+
+Успішна оплата запускає `mint(tier)`, NFT (ERC-721) створюється безпосередньо на адресу `msg.sender`. `ownerOf(tokenId)`, `balanceOf(wallet)` і `tokenURI(tokenId)` дозволяють перевірити результат і показати NFT в сумісному гаманці/маркетплейсі. Метадані зараз доступні через HTTPS-сайт; **перед фінальним Mainnet-деплоєм краще закріпити оригінали на IPFS й використовувати незмінні `ipfs://` URI**, інакше доступність артів залежатиме від Render.

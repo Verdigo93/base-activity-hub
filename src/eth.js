@@ -25,5 +25,5 @@ export function builderCodeSuffix(code){
  const data=new TextEncoder().encode(code);
  if(data.length===0||data.length>255||!/^[-_a-z0-9]{1,64}$/i.test(code))throw Error('Invalid Builder Code');
  const codeHex=Array.from(data).map(b=>b.toString(16).padStart(2,'0')).join('');
- return '0x'+codeHex+data.length.toString(16).padStart(2,'0')+'00'+'8021'.repeat(8);
+ return '0x'+data.length.toString(16).padStart(2,'0')+codeHex+'00'+'8021'.repeat(8);
 }
