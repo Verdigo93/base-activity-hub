@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { MAINNET_X402, mainnetChallenge, parseMainnetPayment, handleMainnetX402Challenge } from '../api/x402-mainnet.mjs';
+import { MAINNET_X402, mainnetChallenge, parseMainnetPayment, handleMainnetX402Challenge, checkMainnetFacilitator } from '../api/x402-mainnet.mjs';
 
 const wallet='0x5F5d8B3Cf23368b9B5fab4e4A391A998803c292F';
 const url=new URL('https://base-activity-hub.onrender.com/api/x402/report?address='+wallet+'&chainId=8453');
@@ -106,4 +106,14 @@ test('Unconfirmed settlement never grants access',async()=>{
  const r=await run({method:'GET',headers:{'payment-signature':payment()}},{enabled:true,fetchImpl:a.fetchImpl});
  assert.equal(r.status,503);
  assert.equal(r.body.noAutomaticRetry,true);
+});
+
+test('Read-only facilitator status checks Base Mainnet without verify or settle',async()=>{
+ const {fetchImpl,calls}=fakeFetchFactory();
+ const status=await checkMainnetFacilitator(fetchImpl);
+ assert.equal(status.x402Version,2);
+ assert.equal(status.network,'eip155:8453');
+ assert.equal(status.facilitatorSupported,true);
+ assert.equal(typeof status.settlementEnabled,'boolean');
+ assert.deepEqual(calls.map(c=>c.url.split('/').at(-1)),['supported']);
 });
