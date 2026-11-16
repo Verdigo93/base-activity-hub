@@ -6,7 +6,8 @@ export const CONFIG = {
     8453: {
       name: "Base Mainnet", rpcUrl: "https://mainnet.base.org", explorer: "https://basescan.org",
       usdc: "0x833589fCD6EDB6E08f4c7C32D4f71b54bdA02913",
-      activityBoard: "", nftContract: "", factoryContract: "",
+      // Deployed by the project owner on Base Mainnet. The UI checks bytecode and read methods before sending GM/check-in/message calls.
+      activityBoard: "0x050A046E37947bb8DAF2b2A1a3C00c191EB92942", nftContract: "", factoryContract: "",
     },
     84532: {
       name: "Base Sepolia", rpcUrl: "https://sepolia.base.org", explorer: "https://sepolia.basescan.org",
